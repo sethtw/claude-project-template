@@ -3,10 +3,10 @@
   "mcpServers": {
     "filesystem": {
       "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@anthropic/mcp-server-filesystem"],
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-filesystem", "C:\\repos\\claude-project-template"],
       "env": {
-        "ALLOWED_PATHS": "${PROJECT_ROOT}"
+        "ALLOWED_PATHS": "C:\\repos\\claude-project-template"
       }
     },
     "github": {
