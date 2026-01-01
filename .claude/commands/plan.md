@@ -1,30 +1,140 @@
 # Architectural Planner
 
-Description: Generate a detailed implementation plan in the memory bank without writing code
-You are a Senior Software Architect. Task: Create a rigorous implementation plan for: "$ARGUMENTS"
+Description: Generate implementation plan without writing code
 
-Constraints:
+You are a Senior Software Architect. Task: Create implementation plan for "$ARGUMENTS".
 
-DO NOT write source code (Java/TS/Python/etc).
+## Model Selection
 
-DO NOT modify progress.md yet.
+| Task | Model | Rationale |
+|------|-------|-----------|
+| Context gathering | `haiku` | Fast file reads |
+| Dependency mapping | `haiku` | Structural analysis |
+| Architecture analysis | `sonnet` | Design decisions |
+| Plan synthesis | `sonnet` | Complex reasoning |
+| **Multi-system planning** | `opus` | Coordinating 5+ files |
+| **Critical architecture** | `opus` | Hard-to-reverse decisions |
 
-Focus on .claude/memory/active_context.md.
+**Escalate to opus** when feature touches 5+ files or requires architectural decisions.
 
-Execution Steps:
+## Parallel Context Gathering
 
-Context Audit: Read .claude/memory/system_patterns.md and .claude/memory/product_context.md to ensure architectural and development alignment. Review .claude/memory/progress.md to understand the wider context.
+Read context files in parallel:
 
-Strategy: Identify which files will need to be created or modified. List external dependencies.
+```
+Task(subagent_type=Explore, model=haiku, prompt="Read architecture patterns...")
+Task(subagent_type=Explore, model=haiku, prompt="Read current progress...")
+Task(subagent_type=Explore, model=haiku, prompt="Analyze existing codebase structure...")
+Task(subagent_type=Explore, model=haiku, prompt="Check for related implementations...")
+```
 
-Update Memory: Overwrite .claude/memory/active_context.md with a section titled "Current Focus: $ARGUMENTS".
+## Process
 
-Add a "Context" subsection summarizing the goal.
+### 1. Context Audit
+Read in parallel:
+- `.claude/memory/system_patterns.md`
+- `.claude/memory/product_context.md`
+- `.claude/memory/progress.md`
+- `.claude/memory/active_context.md`
 
-Add a "Plan" subsection with a numbered checklist of atomic steps (e.g., 1. Define Types, 2. Create Failing Test, 3. Implement Logic).
+### 2. Strategy
+- Identify files to create/modify
+- List external dependencies
+- Map integration points
+- Estimate complexity
 
-Output: Print the plan to the console and ask for my approval to execute Step 1.
+### 3. Update Memory
+Overwrite `.claude/memory/active_context.md` with:
 
-Continuation: After approval, execute each step in the plan, and update .claude/memory/active_context.md with the result, and commit all changes according to convention.
+```markdown
+## Current Focus: $ARGUMENTS
 
-Finally: Offer to update all memory files with important lessons from the session (code issues/solutions/workarounds, new patterns created, bad patterns documented, recurring errors from unrelated/untested code, changes to architecture, etc).
+### Context
+<Goal summary>
+
+### Plan
+1. [ ] Define types/interfaces
+2. [ ] Create failing tests
+3. [ ] Implement core logic
+4. [ ] Add error handling
+5. [ ] Write documentation
+6. [ ] Integration tests
+
+### Files to Modify
+- `src/...` - <purpose>
+- `test/...` - <purpose>
+
+### Dependencies
+- <package> - <reason>
+```
+
+### 4. Execute
+**Proceed immediately with Step 1** - do not ask for approval.
+
+### 5. Continue
+After each step:
+- Update `active_context.md` with result
+- Proceed to next step
+- Commit changes according to convention
+
+### 6. Finalize
+Offer to update memory files with lessons learned:
+- Code patterns discovered
+- Issues encountered
+- Architecture decisions made
+
+## Output
+
+```markdown
+## Plan: $ARGUMENTS
+
+### Summary
+<1-2 sentences>
+
+### Steps
+1. [ ] Step 1 - <description>
+2. [ ] Step 2 - <description>
+...
+
+### Files
+| File | Action | Purpose |
+|------|--------|---------|
+| `src/...` | Create | ... |
+| `test/...` | Create | ... |
+
+### Dependencies
+| Package | Version | Purpose |
+|---------|---------|---------|
+
+### Risks
+- <risk 1>
+- <risk 2>
+
+**Proceeding with Step 1...**
+```
+
+## Self-Assessment
+
+After completing all steps, verify:
+
+```markdown
+### Self-Assessment
+| Check | Status |
+|-------|--------|
+| All planned steps complete | ✅/❌ |
+| All files in plan modified | ✅/❌ |
+| Tests pass | ✅/❌ |
+| Integration points wired | ✅/❌ |
+| No TODO comments left | ✅/❌ |
+
+**Confidence**: [High/Medium/Low]
+**Notes**: <concerns or areas needing review>
+```
+
+## Autonomy
+
+- Do not ask for approval to start
+- Execute steps sequentially without pauses
+- Only pause for architectural decisions that affect other systems
+- Auto-commit after each completed step
+- Output self-assessment after completion
