@@ -129,6 +129,34 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/session-tracker.py"
+          },
+          {
+            "type": "command",
+            "command": "python .claude/hooks/state-sync.py"
+          },
+          {
+            "type": "command",
+            "command": "python .claude/hooks/registry-staleness.py"
+          }
+        ]
+      },
+      {
+        "matcher": "TodoWrite",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/todo-context-sync.py"
+          }
+        ]
+      }
     ]
   },
   "enabledMcpjsonServers": [

@@ -23,18 +23,22 @@
 
 ## In Progress
 
-| Task | Status | Notes |
-|------|--------|-------|
-| (none) | - | - |
 
+| Task | Status | Notes |
+|------|------|------|
+| Test task 1 | In Progress | Testing task 1 |
 ---
 
 ## Completed This Session
 
-| Task | Files | Notes |
-|------|-------|-------|
-| (none yet) | - | - |
 
+
+
+| Task | Files | Notes |
+|------|------|------|
+| Created/Updated test-file.txt | test-file.txt | 2026-01-01 15:21 |
+| Completed: Test task 2 | - | 2026-01-01 15:21 |
+| Created/Updated test.txt | test.txt | 2026-01-01 15:24 |
 ---
 
 ## Key Decisions Made

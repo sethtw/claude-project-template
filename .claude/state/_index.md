@@ -17,7 +17,7 @@
 |--------|-------|
 | Session ID | - |
 | Started | - |
-| Documents Touched | 0 |
+| Documents Touched | 2 |
 | Commands Run | 0 |
 
 ### Session History
