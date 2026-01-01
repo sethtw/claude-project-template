@@ -1,35 +1,76 @@
 # Active Context
 
-## Current Focus:
+> Current session state. Updated during each work session.
 
-**Status:**
-**Date:**
-**Previous:**
+## Current Focus
 
----
-
-## Completed Work
-
-### Session Summary ($DATE$)
-
-#### 1. Phase 1: Phase Title
+| Field | Value |
+|-------|-------|
+| **Status** | Ready for new work |
+| **Date** | - |
+| **Working On** | - |
+| **Branch** | `main` |
 
 ---
 
-## Key Technical Lessons
+## Session Goals
+
+1. (not set)
+2. (not set)
+3. (not set)
 
 ---
 
-## Files Modified This Session
+## In Progress
 
-| File | Changes |
-|------|---------|
-
----
-
-## Test Status
-- **Tests:** ___ passing (__ suites)
+| Task | Status | Notes |
+|------|--------|-------|
+| (none) | - | - |
 
 ---
 
-## Next Planned Work
+## Completed This Session
+
+| Task | Files | Notes |
+|------|-------|-------|
+| (none yet) | - | - |
+
+---
+
+## Key Decisions Made
+
+| Decision | Rationale | Date |
+|----------|-----------|------|
+| (none yet) | - | - |
+
+---
+
+## Blockers / Questions
+
+| Issue | Status | Resolution |
+|-------|--------|------------|
+| (none) | - | - |
+
+---
+
+## Next Steps
+
+1. (not set)
+2. (not set)
+3. (not set)
+
+---
+
+## Session History
+
+| Date | Focus | Outcome |
+|------|-------|---------|
+| (none yet) | - | - |
+
+---
+
+## Quick Links
+
+- [Project Brief](project_brief.md) - Tech stack, setup
+- [Progress](progress.md) - Roadmap
+- [Knowledge Index](_index.md) - Full navigation

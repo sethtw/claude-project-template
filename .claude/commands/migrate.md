@@ -159,3 +159,28 @@ After each phase and at completion:
 - Only pause on test failures or breaking changes needing decisions
 - Support `--resume` to continue from state
 - Output self-assessment after each phase
+
+---
+
+## Skills Used
+
+- **codebase-navigator** - Finding all affected files
+- **feature-integration** - Understanding migration impacts
+- **api-design** - API compatibility analysis
+- **database-patterns** - Data migration considerations
+
+## Agents Used
+
+- **explorer** (haiku) - Parallel impact scanning
+- **analyzer** (sonnet) - Breaking change analysis
+- **test-runner** (haiku) - Running tests after each phase
+
+## State Tracking
+
+Creates/updates `.claude/state/migration_state.md` for resume capability.
+
+## Memory Updates
+
+- Updates `active_context.md` with migration progress
+- May update `patterns/architecture.md` with new patterns
+- Updates `project_brief.md` with new tech stack versions

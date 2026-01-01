@@ -118,3 +118,25 @@ After completing review:
 - Update memory files without asking
 - Only prompt for architectural decisions
 - Output self-assessment after review completes
+
+---
+
+## Skills Used
+
+- **security-review** - OWASP Top 10 vulnerability scanning
+- **performance-analysis** - Bottleneck and complexity detection
+- **ux-workflow-analysis** - UI/UX issue detection (for frontend)
+- **codebase-navigator** - Efficient file discovery
+
+## Agents Used
+
+- **security-auditor** (sonnet) - Comprehensive security analysis
+- **analyzer** (sonnet) - Architecture and pattern review
+- **explorer** (haiku) - Parallel file scanning
+
+## Memory Updates
+
+- Updates `active_context.md` with review findings
+- May update `patterns/known_issues.md` with persistent issues
+- References `system_patterns.md` for existing patterns
+- References `project_brief.md` for architecture context

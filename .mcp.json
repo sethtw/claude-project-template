@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/mcp.json",
+  "mcpServers": {
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-server-filesystem"],
+      "env": {
+        "ALLOWED_PATHS": "${PROJECT_ROOT}"
+      }
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_TOKEN}"
+      }
+    }
+  },
+  "_comments": {
+    "filesystem": "Local file system access for the project",
+    "github": "GitHub integration for PR, issues, and repo operations. Requires GITHUB_TOKEN env var.",
+    "adding_servers": "Use 'claude mcp add' to add new servers or edit this file directly",
+    "environment_vars": "Variables like ${VAR} are expanded from environment at runtime"
+  }
+}

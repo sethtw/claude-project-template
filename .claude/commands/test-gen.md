@@ -117,3 +117,21 @@ After test generation completes:
 - Only pause if existing tests break
 - Auto-stage generated test files
 - Output self-assessment after test generation
+
+---
+
+## Skills Used
+
+- **tdd-workflow** - Test design patterns and best practices
+- **codebase-navigator** - Finding testable units
+
+## Agents Used
+
+- **analyzer** (sonnet) - Understanding code to generate tests for
+- **test-runner** (haiku) - Running generated tests
+
+## Memory Updates
+
+- Updates `active_context.md` with coverage progress
+- References `patterns/testing.md` for test patterns
+- References `.claude/rules/testing.md` for conventions

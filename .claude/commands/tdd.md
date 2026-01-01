@@ -106,3 +106,19 @@ After TDD cycle completes:
 - Auto-commit on green
 - Only pause if tests fail unexpectedly
 - Output self-assessment after cycle completes
+
+---
+
+## Skills Used
+
+- **tdd-workflow** - Core TDD patterns and discipline
+
+## Agents Used
+
+- **test-runner** (haiku) - Fast test execution and failure analysis
+
+## Memory Updates
+
+- Updates `active_context.md` with test progress
+- References `patterns/testing.md` for test patterns
+- References `.claude/rules/testing.md` for conventions

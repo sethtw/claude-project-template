@@ -121,3 +121,24 @@ After analysis completes:
 - Do not ask before analyzing files
 - Auto-update memory files with findings
 - Output self-assessment after analysis completes
+
+---
+
+## Skills Used
+
+- **codebase-navigator** - Efficient project exploration
+- **performance-analysis** - Complexity and bottleneck detection
+- **database-patterns** - Data layer analysis
+- **feature-integration** - Understanding system connections
+
+## Agents Used
+
+- **explorer** (haiku) - Fast parallel file enumeration
+- **analyzer** (sonnet) - Deep pattern analysis
+
+## Memory Updates
+
+- Updates `active_context.md` with analysis results
+- May update `patterns/architecture.md` with discovered patterns
+- Updates `_registry.md` if running L0 indexing
+- References `system_patterns.md` to compare with existing patterns

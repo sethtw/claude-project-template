@@ -1,5 +1,7 @@
 # Development Patterns
 
+> Single source of truth for development workflows, model selection, and autonomy settings.
+
 ## Autonomy Settings
 
 Process all development operations without confirmation:
@@ -7,117 +9,271 @@ Process all development operations without confirmation:
 - Do not pause between test/lint/build steps
 - Auto-fix safe issues (formatting, imports, unused vars)
 - Run test suites automatically
-- Only prompt for destructive operations
+- Only prompt for destructive operations (file deletion, force push)
 
-## Model Selection
+---
 
-Choose the right model for each task:
+## Model Selection Matrix
 
-| Task Type | Model | Rationale |
-|-----------|-------|-----------|
-| File scanning | `haiku` | Fast pattern matching |
-| Linting/formatting | `haiku` | Rule-based checks |
+| Task | Model | Rationale |
+|------|-------|-----------|
+| File scanning/searching | `haiku` | Fast pattern matching |
+| Linting/formatting | `haiku` | Rule-based, structural |
 | Dependency analysis | `haiku` | Package enumeration |
-| Code generation | `sonnet` | Complex reasoning |
+| Simple docs (JSDoc) | `haiku` | Templated patterns |
+| Code generation | `sonnet` | Complex reasoning needed |
 | Bug analysis | `sonnet` | Context understanding |
-| Test generation | `sonnet` | Behavioral understanding |
+| Test generation | `sonnet` | Needs code understanding |
 | Refactoring | `sonnet` | Semantic changes |
-| Code review | `sonnet` | Quality assessment |
-| **Feature planning** | `opus` | Multi-system coordination |
+| Code review | `sonnet` | Quality requires depth |
+| Complex docs (guides) | `sonnet` | Needs context |
+| **Feature planning** | `opus` | Complex multi-system design |
 | **Architecture design** | `opus` | Critical structural decisions |
-| **Complex features** | `opus` | Multi-file coordinated changes |
-| **Risk assessment** | `opus` | Downstream impact analysis |
+| **Complex feature generation** | `opus` | Multi-file coordinated changes |
+| **Risk assessment** | `opus` | Understanding downstream impacts |
+| **UX workflow analysis** | `sonnet` | User journey validation |
+| **Feature integration** | `opus` | Multi-system impact analysis |
 
 **Hierarchy**: `haiku` for speed → `sonnet` for quality → `opus` for complexity.
 
+### Escalation Rules
+
 **Escalate to opus** when:
-- Planning touches 5+ files or 3+ systems
-- Making hard-to-reverse architectural decisions
-- Complex features with many integration points
+- Planning features that touch 5+ files or 3+ systems
+- Making architectural decisions that are hard to reverse
+- Generating complex features with many integration points
+- Assessing risk for significant changes
+- Analyzing cross-system integration impacts
+
+**Stay with sonnet** when:
+- Single-system changes
+- Well-defined feature scope
+- Clear implementation path
+
+**Use haiku** when:
+- Speed is priority over depth
+- Pattern matching tasks
+- File enumeration and discovery
+
+---
 
 ## Parallel Processing
 
 Spawn up to 4 agents for independent work:
 
 ```
-# Multi-aspect analysis
-Task(model=haiku, prompt="Scan for security issues...")
-Task(model=haiku, prompt="Scan for performance issues...")
-Task(model=haiku, prompt="Check test coverage...")
-Task(model=haiku, prompt="Check documentation...")
+# Example: Multi-aspect code review
+Task(subagent_type=Explore, model=haiku, prompt="Scan for security issues...")
+Task(subagent_type=Explore, model=haiku, prompt="Scan for performance issues...")
+Task(subagent_type=Explore, model=haiku, prompt="Check test coverage...")
+Task(subagent_type=Explore, model=haiku, prompt="Check documentation...")
+# Consolidate with sonnet for prioritized report
 ```
 
 **Rules**:
 - Use parallel agents for independent operations
 - Consolidate results after all complete
 - No confirmation between agent spawns
+- Max 4 concurrent agents
+
+---
 
 ## Batch Processing
 
-Process large operations in batches:
-- Default batch size: 10 files
-- Run tests after each batch
-- Update state after each batch
-- Support resume from any point
+For large operations:
+
+| Setting | Default | Purpose |
+|---------|---------|---------|
+| Batch size | 10 files | Manageable chunks |
+| Test frequency | After each batch | Catch issues early |
+| State updates | After each batch | Enable resume |
+| Commit frequency | Per logical unit | Clean history |
+
+**Resume support**: All long operations can be interrupted and resumed via `.claude/state/`.
+
+---
 
 ## Development Workflow
 
 ### Plan-Execute-Verify Cycle
-1. **Plan** in active_context.md
-2. **Execute** in atomic batches (no pauses)
-3. **Verify** with tests (auto-run)
+1. **Plan** in `active_context.md`
+   - Define scope and success criteria
+   - List files to modify
+   - Identify integration points
 
-### Strict TDD
-1. Write failing test first
-2. Implement minimal solution
-3. Refactor with tests passing
-4. Auto-commit on green
+2. **Execute** in atomic batches
+   - No confirmation between steps
+   - Update state after each batch
+   - Auto-fix safe issues
+
+3. **Verify** with tests
+   - Run automatically after changes
+   - Fix failures before continuing
+   - Update active context
+
+### Strict TDD Workflow
+1. **Red**: Write failing test first
+2. **Green**: Implement minimal solution
+3. **Refactor**: Improve with tests passing
+4. **Commit**: Auto-commit on green
 
 ### Atomic Commits
-- Conventional format: `feat:`, `fix:`, `chore:`
-- Tests must pass before commit
-- Auto-stage related files
+- **Format**: `feat:`, `fix:`, `chore:`, `docs:`, `test:`
+- **Rule**: Tests must pass before commit
+- **Scope**: One logical change per commit
+- **Auto-stage**: Related files staged together
+
+---
+
+## Staged Execution Pattern (Cost Optimization)
+
+For large implementations, use staged model execution to optimize costs:
+
+### Token Cost Reference
+
+| Model | Input | Output | Relative Cost |
+|-------|-------|--------|---------------|
+| Opus | $15/1M | $75/1M | 1x (baseline) |
+| Sonnet | $3/1M | $15/1M | 5x cheaper |
+| Haiku | $0.25/1M | $1.25/1M | 60x cheaper |
+
+**Key insight**: Output tokens cost 5x input. Code generation = many output tokens.
+
+### Five-Stage Execution
+
+```
+Stage 1: DISCOVER (Haiku)  → Find files, map structure      [Low cost]
+Stage 2: PLAN (Opus)       → Design implementation          [High value]
+Stage 3: WRITE (Sonnet)    → Generate code                  [Bulk output]
+Stage 4: VERIFY (Sonnet)   → Run tests, basic review        [Quality check]
+Stage 5: FIX (Opus)        → Fix issues (only if needed)    [Conditional]
+```
+
+### Cost Savings Example
+
+| Approach | 50K Output Tokens | Est. Cost |
+|----------|-------------------|-----------|
+| All Opus | 50K × $75/1M | ~$3.75 |
+| Staged (mostly Sonnet) | Mixed | ~$1.25 |
+| **Savings** | | **~67%** |
+
+### When to Use Staged Execution
+
+**Use `/implement`** (staged) for:
+- Features requiring 3+ new files
+- Well-defined requirements
+- Standard patterns (CRUD, API endpoints)
+- Cost-conscious implementations
+
+**Use `/architect`** (Opus throughout) for:
+- Architectural exploration
+- Unclear requirements
+- Complex multi-system changes
+- Critical decisions
+
+### Stage Requirements
+
+For staged execution to work well:
+
+1. **Stage 2 (Plan)** must produce explicit instructions:
+   - Exact file paths
+   - Function signatures with types
+   - Step-by-step order
+   - Patterns to follow (with file references)
+
+2. **Stage 3 (Write)** follows plan exactly:
+   - No improvisation
+   - Use specified patterns
+   - Ask if plan unclear (rare)
+
+3. **Stage 5 (Fix)** is conditional:
+   - Only invoked if Stage 4 finds issues
+   - Minimal, targeted fixes
+   - Re-verify after fixes
+
+---
 
 ## State Management
 
 For long-running operations, use `.claude/state/`:
-- `refactor_state.md` - Multi-file refactoring
-- `migration_state.md` - Version migrations
-- `review_state.md` - Ongoing reviews
 
-Support `--resume` to continue from state.
+| State File | Purpose | Tracks |
+|------------|---------|--------|
+| `refactor_state.md` | Multi-file refactoring | Batches, files, tests |
+| `migration_state.md` | Version migrations | Phases, rollback points |
+| `review_state.md` | Ongoing reviews | Findings, severity |
+| `implement_state.md` | Staged implementation | Stages, cost, progress |
+
+### Resume Protocol
+1. Check for existing state file
+2. Load last checkpoint
+3. Continue from interrupted position
+4. Update state after each step
+
+---
 
 ## Self-Assessment Pattern
 
-After major work, verify completeness:
+After completing major work, perform verification:
 
-1. **Completeness Check**
-   - All planned tasks done
-   - No unresolved TODOs
-   - All files in plan modified
-   - Integration points wired
+```markdown
+## Self-Assessment Checklist
 
-2. **Quality Check**
-   - Tests pass
-   - No new lint warnings
-   - Error handling in place
-   - No hardcoded values
+### Completeness
+- [ ] All planned tasks marked complete
+- [ ] No TODO comments left unresolved
+- [ ] All files listed in plan were modified
+- [ ] Integration points wired correctly
 
-3. **Verification**
-   - End-to-end works
-   - No regressions
-   - Dependent systems function
+### Quality
+- [ ] Tests pass (run automatically)
+- [ ] No new lint warnings introduced
+- [ ] Error handling in place for edge cases
+- [ ] No hardcoded values that should be configurable
 
-4. **Confidence Rating**
-   - High/Medium/Low
-   - Notes for human review
+### Verification
+- [ ] Changes work end-to-end (not just unit level)
+- [ ] Dependent systems still function
+- [ ] No regressions in existing functionality
 
-**Rule**: Output self-assessment after features, refactors, migrations, or 5+ file changes.
+### Confidence
+Rate: [High/Medium/Low]
+Notes: <any concerns or areas needing human review>
+```
+
+**Trigger self-assessment after**:
+- Feature implementations
+- Multi-file refactors
+- Migrations
+- Any operation spanning 5+ files
+
+---
 
 ## Key Constraints
 
+### Safety
 - Never delete files without confirmation
 - Never use `rm -rf` or force operations
+- Never force push to main/master
+- Create backup branches for risky operations
+
+### Efficiency
 - Prefer editing existing files over creating new ones
 - Use haiku for speed, sonnet for quality, opus for complexity
 - Run tests automatically, don't ask
+- Batch operations for consistency
+
+### Quality
+- All changes must have tests
+- No new lint warnings
+- Follow existing patterns in codebase
+- Document non-obvious decisions
+
+---
+
+## Cross-References
+
+- **Skills reference this**: All development skills
+- **Commands reference this**: All slash commands
+- **CLAUDE.md imports this**: Via @import
+- **Updated when**: Workflow patterns change

@@ -1,0 +1,120 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/**)",
+      "Read(//m/**)",
+      "WebSearch",
+      "FileSystem(read:*)",
+      "Explore",
+      "Read",
+      "Write",
+      "Update",
+      "Search","Edit", "Glob", "Grep",
+      "Task", "Bash(git:*)", "TodoWrite",
+      "Bash",
+      "Bash(python:*)",
+      "Bash(echo:*)",
+      "Bash(find:*)",
+      "Bash(done)",
+      "Bash(head:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(rm:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(ls -la:*)",
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(pwd)",
+      "Bash(cd:*)",
+      "Bash(wc:*)",
+      "Bash(tail:*)",
+      "Bash(sort:*)",
+      "Bash(uniq:*)",
+      "Bash(xargs:*)",
+      "Bash(head:*)",
+      "Bash(cut:*)",
+      "Bash(tr:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(chmod:*)",
+      "Bash(chown:*)",
+      "Bash(df:*)",
+      "Bash(du:*)",
+      "Bash(ps:*)",
+      "Bash(kill:*)",
+      "Bash(netstat:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(uname:*)",
+      "Bash(whoami)",
+      "Bash(date)",
+      "Bash(uptime)",
+      "Bash(env)",
+      "Bash(export:*)",
+      "Bash(sed:*)",
+      "Bash(awk:*)",
+      "Bash(jq:*)",
+      "Bash(more:*)",
+      "Bash(less:*)",
+      "Bash(nano:*)",
+      "Bash(vim:*)",
+      "Bash(git:*)",
+      "Bash(make:*)",
+      "Bash(cmake:*)",
+      "Bash(java:*)",
+      "Bash(javac:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(yarn:*)",
+      "Bash(uv:*)",
+      "Bash(pip:*)",
+      "Bash(systemctl:*)",
+      "Bash(journalctl:*)",
+      "Bash(service:*)",
+      "Bash(docker:*)",
+      "Bash(docker-compose:*)",
+      "Bash(kubectl:*)",
+      "Bash(helm:*)",
+      "Bash(minikube:*)",
+      "Bash(ansible:*)",
+      "Bash(tasklist:*)",
+      "Bash(taskkill:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/startup.sh"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo {\"systemMessage\": \"COMPACT INSTRUCTIONS: Preserve all work-in-progress context including: (1) file paths and line numbers for modified/relevant files, (2) decisions made and their rationale, (3) remaining tasks with dependencies, (4) key error messages and test results, (5) architectural understanding gained. Maintain sufficient context for intelligent continuation of implementation work.\"}"
+          }
+        ]
+      },
+      {
+        "matcher": "manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo {\"systemMessage\": \"COMPACT INSTRUCTIONS: Preserve all work-in-progress context including: (1) file paths and line numbers for modified/relevant files, (2) decisions made and their rationale, (3) remaining tasks with dependencies, (4) key error messages and test results, (5) architectural understanding gained. Maintain sufficient context for intelligent continuation of implementation work.\"}"
+          }
+        ]
+      }
+    ]
+  }
+}

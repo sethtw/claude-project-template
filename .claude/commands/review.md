@@ -73,3 +73,21 @@ After review completes:
 - Auto-fix formatting issues
 - Only block commit for 🔴 Critical issues
 - Output self-assessment after review
+
+---
+
+## Skills Used
+
+- **security-review** - OWASP vulnerability scanning
+- **performance-analysis** - Bottleneck detection
+- **ux-workflow-analysis** - UI/UX issue detection (for frontend changes)
+
+## Agents Used
+
+- **security-auditor** (sonnet) - Comprehensive security scanning
+- **explorer** (haiku) - Fast file scanning
+
+## Memory Updates
+
+- May update `patterns/known_issues.md` with new findings
+- References `.claude/rules/security.md` for security standards

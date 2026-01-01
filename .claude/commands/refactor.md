@@ -142,3 +142,25 @@ After refactor completes:
 - Only pause if tests fail
 - Auto-commit on successful completion
 - Output self-assessment after refactor completes
+
+---
+
+## Skills Used
+
+- **codebase-navigator** - Finding all affected files and usages
+- **feature-integration** - Understanding cross-system impacts
+
+## Agents Used
+
+- **explorer** (haiku) - Parallel usage scanning across directories
+- **analyzer** (sonnet) - Deep impact analysis
+- **test-runner** (haiku) - Running tests after each batch
+
+## State Tracking
+
+Creates/updates `.claude/state/refactor_state.md` for resume capability.
+
+## Memory Updates
+
+- Updates `active_context.md` with refactor progress
+- May update `patterns/architecture.md` with new patterns
