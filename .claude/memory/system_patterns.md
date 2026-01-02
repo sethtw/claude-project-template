@@ -36,6 +36,24 @@ Located in `.claude/skills/`:
 | ux-workflow-analysis | sonnet | UI issues, layout, z-index |
 | codebase-navigator | haiku | find, where is, explore |
 
+### Skill Activation by Command
+
+| Command | Primary Skills | Secondary Skills | Model |
+|---------|----------------|------------------|-------|
+| /initialize | codebase-navigator | - | haiku/sonnet |
+| /index | codebase-navigator | - | haiku |
+| /analyze | codebase-navigator, performance-analysis | database-patterns | haiku/sonnet |
+| /deep | codebase-navigator | feature-integration | sonnet/opus |
+| /architect | feature-integration | codebase-navigator | opus |
+| /implement | tdd-workflow, performance-analysis | security-review | sonnet/opus |
+| /tdd | tdd-workflow | - | sonnet |
+| /test-gen | tdd-workflow | - | sonnet |
+| /code-review | security-review, performance-analysis | ux-workflow-analysis | sonnet |
+| /review | security-review | - | sonnet |
+| /refactor | performance-analysis | codebase-navigator | sonnet/opus |
+| /migrate | feature-integration | codebase-navigator | sonnet/opus |
+| /cleanup | codebase-navigator | - | haiku |
+
 ## Agents
 
 Located in `.claude/agents/`:
@@ -46,6 +64,36 @@ Located in `.claude/agents/`:
 | analyzer | sonnet | Deep code analysis |
 | security-auditor | sonnet | Security scanning |
 | test-runner | haiku | Test execution |
+
+## Hooks (Auto-Tracking)
+
+The project uses Claude Code hooks (`.claude/settings.local.json`) for automatic context tracking:
+
+| Hook | Trigger | Updates | Purpose |
+|------|---------|---------|---------|
+| session-history.py | Session start | state/_index.md, active_context.md | Archives previous session, resets counters |
+| startup.sh | Session start | - | Displays welcome banner with commands |
+| session-tracker.py | File Write/Edit | active_context.md | Logs file modifications |
+| state-sync.py | State file Write/Edit | state/_index.md | Syncs operation progress |
+| registry-staleness.py | Source file Write/Edit | _registry.md | Marks modified files as stale |
+| todo-context-sync.py | TodoWrite | active_context.md | Syncs todo items to context |
+| command-tracker.py | Skill tool | state/_index.md | Increments "Commands Run" counter |
+
+### Hook Configuration
+
+Defined in `.claude/settings.local.json`:
+- **SessionStart** - Runs at session start
+- **PreCompact** - Runs before context compaction (preserves WIP context)
+- **PostToolUse** - Runs after Write, Edit, or TodoWrite tools
+
+### What Hooks Track Automatically
+
+1. **File modifications** → "Completed This Session" table in active_context.md
+2. **State file updates** → "Active States" table in state/_index.md
+3. **Source file changes** → Staleness markers in _registry.md
+4. **Todo progress** → "In Progress" and "Completed This Session" tables
+
+See [development.md](patterns/development.md) for detailed hook configuration.
 
 ---
 

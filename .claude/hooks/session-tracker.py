@@ -6,7 +6,9 @@ Updates:
 - "Completed This Session" table in active_context.md
 - "Documents Touched" counter in state/_index.md
 
-Skips files inside .claude/ directory (metadata files).
+Features:
+- Session rotation: Keeps only last MAX_SESSION_ENTRIES entries
+- Skips files inside .claude/ directory (metadata files)
 """
 
 import json
@@ -22,9 +24,14 @@ from state_utils import (  # type: ignore
     read_markdown_file,
     write_markdown_file,
     add_table_row,
+    parse_table_rows,
+    update_table_section,
     increment_counter,
     get_timestamp,
 )
+
+# Maximum entries to keep in "Completed This Session" table
+MAX_SESSION_ENTRIES = 50
 
 
 def main():
@@ -85,6 +92,17 @@ def main():
             headers = ["Task", "Files", "Notes"]
 
             content = add_table_row(content, "Completed This Session", new_row, headers)
+
+            # Session rotation: keep only last MAX_SESSION_ENTRIES entries
+            existing_rows = parse_table_rows(content, "Completed This Session")
+            # Filter out placeholder rows
+            real_rows = [r for r in existing_rows if r.get("Task", "(none)") != "(none)"]
+
+            if len(real_rows) > MAX_SESSION_ENTRIES:
+                # Keep only the most recent entries
+                trimmed_rows = real_rows[-MAX_SESSION_ENTRIES:]
+                content = update_table_section(content, "Completed This Session", trimmed_rows, headers)
+
             write_markdown_file(active_context_path, content)
 
         # Update Documents Touched counter in state/_index.md

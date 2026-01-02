@@ -148,17 +148,59 @@
 
 ## Depth Promotion Triggers
 
-### Automatic (via commands)
-| Trigger | Promotion |
-|---------|-----------|
-| `/index` | Everything → L0 |
-| `/analyze` | Frequently-touched files → L1 |
-| `/deep <path>` | Specified files → L2 or L3 |
+### Automatic Promotion Rules
 
-### Manual
-- Explicitly request deeper analysis
-- Files involved in current task
-- Files with high complexity scores
+| From | To | Trigger | Command |
+|------|----|---------|---------|
+| - | L0 | New file discovered | `/index` |
+| L0 | L1 | File referenced in 3+ sessions | Automatic |
+| L0 | L1 | High-complexity file identified | `/analyze` |
+| L0 | L1 | File modified this session | Hooks |
+| L1 | L2 | User requests deep analysis | `/deep <path>` |
+| L1 | L2 | File critical to current feature | `/architect` |
+| L2 | L3 | User requests exhaustive analysis | `/deep --l3 <path>` |
+| L2 | L3 | File has integration issues | `/implement` (Stage 5) |
+
+### Command-Triggered Promotions
+
+| Command | Promotion Behavior |
+|---------|-------------------|
+| `/index` | All new files → L0 |
+| `/analyze` | Suggests files for promotion, outputs to active_context.md |
+| `/deep <path>` | Specified files → L2 (default) or L3 (--l3 flag) |
+| `/architect` | May promote integration point files → L2 |
+| `/implement` | May promote files with issues → L2/L3 during Fix stage |
+
+### /analyze Recommendations
+
+When `/analyze` identifies complexity hotspots, it outputs to `active_context.md`:
+
+```markdown
+## Latest Analysis Results (from /analyze)
+**Analyzed**: <timestamp>
+
+### Complexity Hotspots
+| File | Complexity | Recommendation |
+|------|------------|----------------|
+| src/services/auth.ts | High | /deep for L2 analysis |
+| src/api/routes.ts | Medium | Monitor for growth |
+
+### Recommended /deep Targets
+| File | Reason | Suggested Depth |
+|------|--------|-----------------|
+| src/services/auth.ts | High cyclomatic complexity | L2 |
+| src/utils/parser.ts | Many integration points | L2 |
+
+### Architecture Notes for /architect
+- Integration points: <list>
+- Pattern violations: <list>
+- Tech debt locations: <list>
+```
+
+### Manual Promotion
+- Explicitly request deeper analysis with `/deep`
+- Files involved in current task are auto-promoted by hooks
+- Files with high complexity scores identified by `/analyze`
 
 ---
 

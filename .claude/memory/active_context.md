@@ -24,9 +24,24 @@
 ## In Progress
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 | Task | Status | Notes |
 |------|------|------|
-| Test task 1 | In Progress | Testing task 1 |
+| (none) | - | - |
 ---
 
 ## Completed This Session
@@ -34,11 +49,149 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 | Task | Files | Notes |
 |------|------|------|
-| Created/Updated test-file.txt | test-file.txt | 2026-01-01 15:21 |
-| Completed: Test task 2 | - | 2026-01-01 15:21 |
-| Created/Updated test.txt | test.txt | 2026-01-01 15:24 |
+| (none) | - | - |
 ---
 
 ## Key Decisions Made
@@ -70,6 +223,18 @@
 | Date | Focus | Outcome |
 |------|-------|---------|
 | (none yet) | - | - |
+
+---
+
+## Update Protocol
+
+| Source | Action | Automatic |
+|--------|--------|-----------|
+| Hooks | session-tracker.py logs file edits | Yes |
+| Hooks | todo-context-sync.py syncs todos | Yes |
+| /initialize | Sets initial session state | Yes |
+| All commands | Update "In Progress" and "Completed" | Yes |
+| Manual | User updates for goals, decisions, blockers | No |
 
 ---
 

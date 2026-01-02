@@ -86,15 +86,52 @@ Save plan to `.claude/state/current_plan.md`.
 
 ```
 Read plan from: .claude/state/current_plan.md
-
-Verify plan exists and contains:
-- [ ] Files to create/modify
-- [ ] Implementation steps
-- [ ] Patterns to follow
-
-If plan invalid or missing:
-- ERROR: "No valid plan found. Run /architect first or use /implement without --planned"
 ```
+
+## Plan Validation (before Stage 3)
+
+When using `--planned`, validate the plan structure before proceeding:
+
+### Required Sections
+
+| Section | Required Fields | Error If Missing |
+|---------|-----------------|------------------|
+| Status table | `| Status |` row | "Plan missing Status table. Run /architect first" |
+| Files to Create/Modify | At least 1 file listed | "Plan has no files specified" |
+| Implementation Steps | At least 1 step | "Plan has no implementation steps" |
+| Status field | Not "complete" | "Plan already complete. Use --fresh for new implementation" |
+
+### Validation Flow
+
+```
+1. Check file exists: .claude/state/current_plan.md
+   → If missing: ERROR "No plan found. Run /architect first or use /implement without --planned"
+
+2. Check Status table exists (regex: `| Status |`)
+   → If missing: ERROR "Plan missing Status table. Run /architect to create valid plan"
+
+3. Check Status value
+   → If "complete": WARNING "Plan shows complete. Use --fresh to re-implement"
+   → If "pending" or "in_progress": PROCEED
+
+4. Check Files section exists
+   → If missing or empty: ERROR "Plan has no files to create/modify"
+
+5. Check Implementation Steps section exists
+   → If missing or empty: ERROR "Plan has no implementation steps"
+
+6. All checks pass → Proceed to Stage 3
+```
+
+### Validation Behavior by Error Type
+
+| Validation Error | Behavior |
+|------------------|----------|
+| Plan file missing | Fail with clear message to run /architect |
+| Status table missing | Fail - plan format incompatible with state-sync |
+| Status = "complete" | Warn and suggest --fresh flag |
+| No files listed | Fail - nothing to implement |
+| No steps listed | Fail - no guidance for execution |
 
 ---
 

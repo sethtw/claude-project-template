@@ -271,6 +271,71 @@ Notes: <any concerns or areas needing human review>
 
 ---
 
+## Hook System Configuration
+
+The project uses Claude Code hooks for automatic session tracking. Hooks are configured in `.claude/settings.local.json`.
+
+### Hook Types
+
+| Type | When It Runs | Purpose |
+|------|--------------|---------|
+| SessionStart | Session begins | Display welcome banner, initialize session |
+| PreCompact | Before context compaction | Preserve critical WIP context |
+| PostToolUse | After tool execution | Track changes automatically |
+
+### SessionStart Hooks
+
+```
+1. session-history.py  → Archives previous session, resets counters
+2. startup.sh          → Displays welcome banner
+```
+
+### PostToolUse Hooks
+
+For `Write|Edit` operations (runs in sequence):
+```
+1. session-tracker.py  → Updates active_context.md
+2. state-sync.py       → Updates state/_index.md
+3. registry-staleness.py → Marks _registry.md entries stale
+```
+
+For `TodoWrite` operations:
+```
+1. todo-context-sync.py → Syncs todos to active_context.md
+```
+
+For `Skill` operations:
+```
+1. command-tracker.py  → Increments Commands Run counter
+```
+
+### Hook Scripts
+
+All hooks located in `.claude/hooks/`:
+
+| Script | Input | Output | Function |
+|--------|-------|--------|----------|
+| session-history.py | - | - | Archive previous session to history |
+| startup.sh | - | Banner to stderr | Welcome message with command list |
+| session-tracker.py | Tool result JSON | - | Log file edits to context |
+| state-sync.py | Tool result JSON | - | Sync state file progress |
+| registry-staleness.py | Tool result JSON | - | Mark modified files stale |
+| todo-context-sync.py | Tool result JSON | - | Sync todo items |
+| command-tracker.py | Tool result JSON | - | Increment Commands Run counter |
+| state_utils.py | - | - | Shared utilities for hooks |
+
+### Adding New Hooks
+
+To add a new PostToolUse hook:
+
+1. Create script in `.claude/hooks/`
+2. Add to settings.local.json under appropriate matcher
+3. Script receives JSON via stdin with tool_name and tool_input
+4. Script outputs JSON (can be empty `{}`)
+5. Use state_utils.py for common markdown operations
+
+---
+
 ## Cross-References
 
 - **Skills reference this**: All development skills

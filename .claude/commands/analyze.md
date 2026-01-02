@@ -124,6 +124,70 @@ After analysis completes:
 
 ---
 
+---
+
+## Integration with User Journey
+
+`/analyze` is the **intelligence layer** bridging discovery and planning:
+
+```
+Discovery Layer         Intelligence Layer        Planning Layer
+─────────────────       ──────────────────       ────────────────
+/initialize   ────┐
+                  ├──→  /analyze  ────→  Suggests targets for /deep
+/index        ────┘         │                          │
+                            │                          ↓
+                            └──→  Informs /architect with:
+                                  • Complexity hotspots
+                                  • Pattern violations
+                                  • Integration points
+                                  • Tech debt locations
+```
+
+### Structured Output for Downstream Commands
+
+When analysis completes, output this section to `active_context.md`:
+
+```markdown
+## Latest Analysis Results (from /analyze)
+**Analyzed**: <timestamp>
+**Target**: <path or "entire codebase">
+
+### Complexity Hotspots
+| File | Complexity | Recommendation |
+|------|------------|----------------|
+| src/services/auth.ts | High | /deep for L2 analysis |
+| src/api/routes.ts | Medium | Monitor for growth |
+
+### Recommended /deep Targets
+| File | Reason | Suggested Depth |
+|------|--------|-----------------|
+| src/services/auth.ts | High cyclomatic complexity | L2 |
+| src/utils/parser.ts | Many integration points | L2 |
+
+### Architecture Notes for /architect
+- **Integration points**: <files that connect systems>
+- **Pattern violations**: <deviations from established patterns>
+- **Tech debt locations**: <files needing refactoring>
+- **Risk areas**: <fragile or complex sections>
+
+### Pre-Review Findings for /code-review
+- **Security concerns**: <potential vulnerabilities>
+- **Performance issues**: <bottlenecks identified>
+- **Test coverage gaps**: <untested critical paths>
+```
+
+### Command Handoffs
+
+| When | Then | Output |
+|------|------|--------|
+| Complexity hotspots found | Suggest `/deep` for specific files | "Recommended /deep Targets" section |
+| Planning a feature | Provide context for `/architect` | "Architecture Notes" section |
+| Pre-review check | Prepare findings for `/code-review` | "Pre-Review Findings" section |
+| Files need deeper analysis | Promote to L1 in registry | Update `_registry.md` |
+
+---
+
 ## Skills Used
 
 - **codebase-navigator** - Efficient project exploration
@@ -138,7 +202,17 @@ After analysis completes:
 
 ## Memory Updates
 
-- Updates `active_context.md` with analysis results
+- Updates `active_context.md` with structured analysis results
 - May update `patterns/architecture.md` with discovered patterns
 - Updates `_registry.md` if running L0 indexing
+- May promote high-complexity files to L1 in `_registry.md`
 - References `system_patterns.md` to compare with existing patterns
+
+## Update Protocol
+
+| Source | Action | Automatic |
+|--------|--------|-----------|
+| /analyze run | Outputs structured findings to active_context.md | Yes |
+| /analyze run | May update patterns/architecture.md | Yes |
+| /analyze run | May promote files in _registry.md | Yes |
+| Manual | Reviewing and acting on recommendations | No |

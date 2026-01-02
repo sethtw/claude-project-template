@@ -54,6 +54,15 @@ See @.claude/memory/patterns/development.md for full matrix.
 - `.claude/skills/` - Semantic skills
 - `.claude/agents/` - Specialized subagents
 
+### Automatic Hooks
+The following run automatically (configured in `.claude/settings.local.json`):
+- **session-history.py** - Archives previous session on startup, resets counters
+- **session-tracker.py** - Logs file edits to `active_context.md`
+- **state-sync.py** - Syncs state file progress to `state/_index.md`
+- **registry-staleness.py** - Marks modified files in `_registry.md`
+- **todo-context-sync.py** - Syncs todos to `active_context.md`
+- **command-tracker.py** - Increments "Commands Run" on slash command use
+
 ## Slash Commands
 
 | Command | Purpose |
@@ -62,15 +71,16 @@ See @.claude/memory/patterns/development.md for full matrix.
 | `/index` | Scan codebase to L0 registry |
 | `/deep` | Deepen file to L2/L3 analysis |
 | `/context` | Show memory state |
+| `/analyze` | Codebase analysis (**intelligence layer** for planning) |
 | `/architect` | Generate implementation plan |
 | `/implement` | **Cost-optimized**: Staged execution (Haiku→Opus→Sonnet→Sonnet→Opus) |
 | `/tdd` | Strict Red-Green-Refactor |
 | `/review` | Quick staged changes review |
 | `/code-review` | Full codebase review |
-| `/analyze` | Codebase analysis |
 | `/refactor` | Multi-file refactoring |
 | `/test-gen` | Batch test generation |
 | `/migrate` | Framework/version migration |
+| `/cleanup` | Clear stale registry entries, maintain registry health |
 
 ## Key Constraints
 

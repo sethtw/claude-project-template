@@ -12,6 +12,7 @@ Discover all files in the codebase and create L0 (discovery) entries in the docu
 /index                    # Index entire codebase
 /index src/               # Index specific directory
 /index --update           # Update existing entries only
+/index --prune            # Index + remove orphaned concepts
 ```
 
 ## Process
@@ -58,6 +59,27 @@ Update `.claude/memory/_index.md` with new counts:
 | L0 (Discovery) | 150 |
 | L1 (Triage) | 0 |
 | L2+ (Analyzed) | 0 |
+```
+
+### Step 5: Concept Maintenance (if --prune flag)
+
+When running `/index --prune`, also maintain the concept graph:
+
+1. **Identify Orphaned Concepts**: Find concepts in `_concepts.md` that reference deleted DOC_XXX entries
+2. **Update Concept References**: For concepts with stale references, either:
+   - Update to point to new DOC_XXX if file was renamed
+   - Remove concept if all referenced files are deleted
+3. **Merge Duplicate Concepts**: If same concept has multiple entries, consolidate
+4. **Update Concept Stats**: Update `_index.md` with current concept count
+
+```markdown
+### Concept Maintenance
+| Action | Count |
+|--------|-------|
+| Orphaned concepts removed | 3 |
+| References updated | 5 |
+| Duplicates merged | 1 |
+| Total concepts after cleanup | 42 |
 ```
 
 ## Output Format

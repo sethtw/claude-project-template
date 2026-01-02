@@ -79,6 +79,18 @@
 
 ---
 
+## Update Protocol
+
+| Source | Action | Automatic |
+|--------|--------|-----------|
+| /initialize | Creates roadmap structure | Yes |
+| /implement | Updates completed milestones | Yes |
+| /refactor | Records architecture changes | Yes |
+| /migrate | Updates version milestones | Yes |
+| Manual | User updates for sprint goals | No |
+
+---
+
 ## Links
 
 - [Active Context](active_context.md) - Current session

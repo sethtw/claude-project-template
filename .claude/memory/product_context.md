@@ -84,6 +84,16 @@
 
 ---
 
+## Update Protocol
+
+| Source | Action | Automatic |
+|--------|--------|-----------|
+| /initialize | Creates initial content | Yes |
+| /analyze | Updates based on codebase findings | Yes |
+| Manual | User updates for business context | No |
+
+---
+
 ## Links
 
 - [Project Brief](project_brief.md) - Technical overview

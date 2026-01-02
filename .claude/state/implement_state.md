@@ -8,7 +8,8 @@
 | Field | Value |
 |-------|-------|
 | Status | not_started |
-| Stage | 0 of 5 |
+| Progress | 0/5 (0%) |
+| Phase | - |
 | Feature | - |
 | Started | - |
 | Last Updated | - |

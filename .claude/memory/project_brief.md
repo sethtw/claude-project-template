@@ -74,6 +74,19 @@ See `.mcp.json` for configured servers:
 - `filesystem` - Local file access
 - `github` - GitHub integration (requires `GITHUB_TOKEN`)
 
+---
+
+## Update Protocol
+
+| Source | Action | Automatic |
+|--------|--------|-----------|
+| /initialize | Creates initial content, detects tech stack | Yes |
+| /analyze | Updates architecture highlights, key patterns | Yes |
+| /implement | May update key features on completion | Yes |
+| Manual | User updates for project-specific details | No |
+
+---
+
 ## Related Documentation
 
 - [Active Context](active_context.md) - Current session work

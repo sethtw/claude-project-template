@@ -2,14 +2,17 @@
 
 > Active plan created by `/architect`. Execute with `/implement --planned`.
 
-## Status
+## Operation: Feature Implementation
 
+### Status
 | Field | Value |
 |-------|-------|
+| Status | pending |
+| Progress | - |
+| Started | - |
 | Feature | <!-- Feature name --> |
 | Created | <!-- Timestamp --> |
 | Created By | `/architect` |
-| Status | ready_for_implementation |
 
 ---
 

@@ -105,6 +105,10 @@
         "hooks": [
           {
             "type": "command",
+            "command": "python .claude/hooks/session-history.py"
+          },
+          {
+            "type": "command",
             "command": "bash .claude/hooks/startup.sh"
           }
         ]
@@ -154,6 +158,15 @@
           {
             "type": "command",
             "command": "python .claude/hooks/todo-context-sync.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/command-tracker.py"
           }
         ]
       }
