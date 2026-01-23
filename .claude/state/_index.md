@@ -8,8 +8,7 @@
 
 | Operation | State File | Status | Progress | Started |
 |------|------|------|------|------|
-| Current Plan | .claude\state\current_plan.md | pending | - | - |
-| Implement | .claude\state\implement_state.md | not_started | 0/5 (0%) | - |
+| (none yet) | - | - | - | - |
 ---
 
 ## Session Tracking
