@@ -96,3 +96,6 @@
 - [Active Context](active_context.md) - Current session
 - [Project Brief](project_brief.md) - Overview
 - [Knowledge Index](_index.md) - Navigation
+- [Completed Tasks](progress/completed_tasks.md) - Historical log
+- [Technical Debt](progress/technical_debt.md) - Known issues
+- [Architecture Notes](progress/architecture_notes.md) - Design decisions

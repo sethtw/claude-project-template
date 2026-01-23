@@ -73,9 +73,7 @@ The project uses Claude Code hooks (`.claude/settings.local.json`) for automatic
 |------|---------|---------|---------|
 | session-history.py | Session start | state/_index.md, active_context.md | Archives previous session, resets counters |
 | startup.sh | Session start | - | Displays welcome banner with commands |
-| session-tracker.py | File Write/Edit | active_context.md | Logs file modifications |
-| state-sync.py | State file Write/Edit | state/_index.md | Syncs operation progress |
-| registry-staleness.py | Source file Write/Edit | _registry.md | Marks modified files as stale |
+| unified-post-write.py | File Write/Edit | active_context.md, state/_index.md, _registry.md | **Unified**: Logs file edits, syncs state, marks staleness (50-70% faster via parallel) |
 | todo-context-sync.py | TodoWrite | active_context.md | Syncs todo items to context |
 | command-tracker.py | Skill tool | state/_index.md | Increments "Commands Run" counter |
 

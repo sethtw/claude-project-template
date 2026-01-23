@@ -4,6 +4,16 @@
       "Read(//c/**)",
       "Read(//m/**)",
       "WebSearch",
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:docs.claude.ai)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "Skill(commit)",
+      "Skill(review)",
+      "Skill(test-gen)",
+      "Skill(tdd-workflow)",
+      "Skill(security-review)",
+      "Skill(code-review)",
       "mcp__filesystem__read_file",
       "mcp__filesystem__read_text_file",
       "mcp__filesystem__read_media_file",
@@ -140,15 +150,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/hooks/session-tracker.py"
-          },
-          {
-            "type": "command",
-            "command": "python .claude/hooks/state-sync.py"
-          },
-          {
-            "type": "command",
-            "command": "python .claude/hooks/registry-staleness.py"
+            "command": "python .claude/hooks/unified-post-write.py"
           }
         ]
       },

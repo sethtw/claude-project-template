@@ -24,6 +24,13 @@
 | [Product Context](product_context.md) | Business goals, users | Feature planning |
 | [Progress](progress.md) | Roadmap, milestones | Status check |
 
+### Progress Tracking
+| File | Purpose | When to Read |
+|------|---------|--------------|
+| [Completed Tasks](progress/completed_tasks.md) | Historical log | Reviewing past work |
+| [Technical Debt](progress/technical_debt.md) | Known issues, prioritized | Planning refactoring |
+| [Architecture Notes](progress/architecture_notes.md) | Design decisions | Understanding rationale |
+
 ### Indices
 | Index | Purpose | Location |
 |-------|---------|----------|
@@ -32,6 +39,12 @@
 | [Concepts](_concepts.md) | Key concepts graph | .claude/memory/ |
 | [Patterns](system_patterns.md) | Development patterns | .claude/memory/ |
 | [State](../state/_index.md) | Active operations | .claude/state/ |
+
+### Configuration & Settings
+| File | Purpose | Location |
+|------|---------|----------|
+| [SETTINGS-SCHEMA](../SETTINGS-SCHEMA.md) | Settings reference | .claude/ |
+| [settings.local.json](../settings.local.json) | Project configuration | .claude/ |
 
 ### Skills & Agents
 | Directory | Purpose |

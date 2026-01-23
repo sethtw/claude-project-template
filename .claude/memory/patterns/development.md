@@ -292,11 +292,12 @@ The project uses Claude Code hooks for automatic session tracking. Hooks are con
 
 ### PostToolUse Hooks
 
-For `Write|Edit` operations (runs in sequence):
+For `Write|Edit` operations:
 ```
-1. session-tracker.py  → Updates active_context.md
-2. state-sync.py       → Updates state/_index.md
-3. registry-staleness.py → Marks _registry.md entries stale
+1. unified-post-write.py → Runs 3 operations in parallel (50-70% faster):
+   - Updates active_context.md with file modifications
+   - Syncs state file changes to state/_index.md
+   - Marks registry entries as stale when source files change
 ```
 
 For `TodoWrite` operations:
@@ -317,12 +318,15 @@ All hooks located in `.claude/hooks/`:
 |--------|-------|--------|----------|
 | session-history.py | - | - | Archive previous session to history |
 | startup.sh | - | Banner to stderr | Welcome message with command list |
-| session-tracker.py | Tool result JSON | - | Log file edits to context |
-| state-sync.py | Tool result JSON | - | Sync state file progress |
-| registry-staleness.py | Tool result JSON | - | Mark modified files stale |
+| unified-post-write.py | Tool result JSON | - | **Unified hook**: Log file edits, sync state, mark stale (parallel) |
 | todo-context-sync.py | Tool result JSON | - | Sync todo items |
 | command-tracker.py | Tool result JSON | - | Increment Commands Run counter |
 | state_utils.py | - | - | Shared utilities for hooks |
+
+**Archived hooks** (replaced by unified-post-write.py):
+- session-tracker.py → `.claude/hooks/archive/`
+- state-sync.py → `.claude/hooks/archive/`
+- registry-staleness.py → `.claude/hooks/archive/`
 
 ### Adding New Hooks
 

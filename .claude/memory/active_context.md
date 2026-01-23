@@ -39,12 +39,52 @@
 
 
 
+
+
+
+
+
+
+
+
+
 | Task | Status | Notes |
 |------|------|------|
 | (none) | - | - |
 ---
 
 ## Completed This Session
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -230,7 +270,7 @@
 
 | Source | Action | Automatic |
 |--------|--------|-----------|
-| Hooks | session-tracker.py logs file edits | Yes |
+| Hooks | unified-post-write.py logs file edits | Yes |
 | Hooks | todo-context-sync.py syncs todos | Yes |
 | /initialize | Sets initial session state | Yes |
 | All commands | Update "In Progress" and "Completed" | Yes |

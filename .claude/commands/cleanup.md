@@ -7,7 +7,7 @@ You are a Registry Maintainer. Task: Clean up the document registry by removing 
 ## Purpose
 
 The registry (`_registry.md`) tracks all indexed documents. Over time:
-- Files get modified and marked as "stale" by `registry-staleness.py`
+- Files get modified and marked as "stale" by `unified-post-write.py`
 - Files get deleted but entries remain
 - Orphaned concept references accumulate
 

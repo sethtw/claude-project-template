@@ -122,11 +122,14 @@ Commands receive JSON input via stdin and should output JSON.
 |------|---------|--------|---------|
 | `session-history.py` | SessionStart | `.claude/hooks/session-history.py` | Archive previous session, reset counters |
 | `startup.sh` | SessionStart | `.claude/hooks/startup.sh` | Display welcome banner |
-| `session-tracker.py` | Write\|Edit | `.claude/hooks/session-tracker.py` | Log file changes to active_context.md |
-| `state-sync.py` | Write\|Edit | `.claude/hooks/state-sync.py` | Sync state files to _index.md |
-| `registry-staleness.py` | Write\|Edit | `.claude/hooks/registry-staleness.py` | Mark modified files as stale |
+| `unified-post-write.py` | Write\|Edit | `.claude/hooks/unified-post-write.py` | **Unified hook** (50-70% faster via parallel execution) |
 | `todo-context-sync.py` | TodoWrite | `.claude/hooks/todo-context-sync.py` | Sync todos to active_context.md |
 | `command-tracker.py` | Skill | `.claude/hooks/command-tracker.py` | Increment Commands Run counter |
+
+**Archived hooks** (replaced by unified hook):
+- `session-tracker.py` → `.claude/hooks/archive/`
+- `state-sync.py` → `.claude/hooks/archive/`
+- `registry-staleness.py` → `.claude/hooks/archive/`
 
 ### Hook Execution Order
 
@@ -134,10 +137,14 @@ Commands receive JSON input via stdin and should output JSON.
 1. `session-history.py` - Archives previous session
 2. `startup.sh` - Displays welcome banner
 
-**PostToolUse** with `Write|Edit` matcher, hooks run sequentially:
-1. `session-tracker.py` - Updates active_context.md
-2. `state-sync.py` - Updates state/_index.md
-3. `registry-staleness.py` - Updates _registry.md
+**PostToolUse** with `Write|Edit` matcher:
+1. `unified-post-write.py` - **Runs 3 operations in parallel** (50-70% faster):
+   - Updates `active_context.md` with file modifications
+   - Syncs state file changes to `state/_index.md`
+   - Marks registry entries as stale when source files change
+
+**PostToolUse** with `TodoWrite` matcher:
+1. `todo-context-sync.py` - Syncs todos to active_context.md
 
 **PostToolUse** with `Skill` matcher:
 1. `command-tracker.py` - Increments Commands Run

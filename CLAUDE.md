@@ -57,9 +57,7 @@ See @.claude/memory/patterns/development.md for full matrix.
 ### Automatic Hooks
 The following run automatically (configured in `.claude/settings.local.json`):
 - **session-history.py** - Archives previous session on startup, resets counters
-- **session-tracker.py** - Logs file edits to `active_context.md`
-- **state-sync.py** - Syncs state file progress to `state/_index.md`
-- **registry-staleness.py** - Marks modified files in `_registry.md`
+- **unified-post-write.py** - Logs file edits, syncs state, marks registry staleness (50-70% faster via parallel execution)
 - **todo-context-sync.py** - Syncs todos to `active_context.md`
 - **command-tracker.py** - Increments "Commands Run" on slash command use
 
