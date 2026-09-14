@@ -35,7 +35,8 @@ SKILL_LINE_BUDGET = 150
 
 # Findings that must not reach a commit. `stale` is absent on purpose: a doc may be honestly
 # committed stale. `skipped` IS blocking -- silence is not a clean result.
-BLOCKING = {"orphaned", "missing-unverified", "dead-glob", "skipped"}
+BLOCKING = {"orphaned", "missing-unverified", "dead-glob", "skipped",
+            "fork-agent-missing", "fork-tool-gap"}
 
 INDEX_FILES = {"_index.md", "MEMORY.md", "CLAUDE.md", "README.md"}
 
@@ -254,6 +255,77 @@ def check_skill_budget(repo, findings):
             findings.append(
                 finding("over-budget", rel, "{} lines > {} budget".format(n, SKILL_LINE_BUDGET))
             )
+
+
+def _tool_set(raw):
+    """Parse a `tools:`/`allowed-tools:` value into a set of bare tool names.
+
+    `Agent(explorer, analyzer)` narrows WHICH agent types may be spawned but still grants the
+    Agent tool, so the parenthesised part is dropped for this comparison.
+    """
+    if isinstance(raw, list):
+        raw = ",".join(raw)
+    names = set()
+    for part in re.split(r"[,\s]+", re.sub(r"\([^)]*\)", "", str(raw))):
+        part = part.strip()
+        if part:
+            names.add(part)
+    return names
+
+
+def check_fork_agents(repo, findings):
+    """A skill that forks into a subagent gets that SUBAGENT's tools, not its own allowed-tools.
+
+    `allowed-tools` pre-approves permission for tools that are already available; it cannot add a
+    tool to a subagent's allowlist. So a skill declaring Write and forking into an agent whose
+    `tools:` omits Write reads, concludes, and then silently fails to save -- and the skill still
+    reports success, because nothing in it ever learns the write was impossible.
+
+    This check exists because the obvious version -- "does the named agent exist?" -- answers a
+    different question and passes on exactly this bug.
+    """
+    agents = {}
+    agent_dir = repo / ".claude/agents"
+    if agent_dir.is_dir():
+        for path in sorted(agent_dir.rglob("*.md")):
+            rel = str(path.relative_to(repo)).replace(os.sep, "/")
+            try:
+                fm, _ = parse_frontmatter(path.read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError, ValueError) as exc:
+                findings.append(finding("skipped", rel, "could not parse: {}".format(exc)))
+                continue
+            name = fm.get("name") or path.stem
+            # An omitted `tools:` inherits every tool available to subagents -- None means
+            # "unrestricted", which is different from an empty allowlist.
+            agents[name] = _tool_set(fm["tools"]) if fm.get("tools") else None
+
+    for path in sorted(repo.glob(".claude/skills/*/SKILL.md")):
+        rel = str(path.relative_to(repo)).replace(os.sep, "/")
+        try:
+            fm, _ = parse_frontmatter(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, ValueError):
+            continue  # already reported by the budget check
+        if str(fm.get("context", "")).strip() != "fork":
+            continue
+        named = str(fm.get("agent", "")).strip()
+        if not named:
+            continue
+        if named not in agents:
+            findings.append(
+                finding("fork-agent-missing", rel,
+                        "context: fork names agent '{}', which has no definition".format(named)))
+            continue
+        granted = agents[named]
+        if granted is None:
+            continue  # agent inherits everything
+        needed = _tool_set(fm.get("allowed-tools", ""))
+        gap = sorted(needed - granted)
+        if gap:
+            findings.append(
+                finding("fork-tool-gap", rel,
+                        "declares {} but forks into agent '{}', whose tools: omits {} "
+                        "-- allowed-tools cannot grant a subagent a tool it lacks".format(
+                            ", ".join(sorted(needed)), named, ", ".join(gap))))
 
 
 def check_rule_globs(repo, tracked, findings):
@@ -492,6 +564,7 @@ def main():
             docs.append(result)
 
     check_skill_budget(repo, findings)
+    check_fork_agents(repo, findings)
     check_rule_globs(repo, tracked, findings)
     check_links(repo, tracked, findings)
 

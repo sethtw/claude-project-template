@@ -175,6 +175,54 @@ def test_dead_glob_needs_source():
                "GREEN CONTROL: on a repo with no tracked source, dead-glob does not block")
 
 
+def test_fork_agents():
+    print("forked skills vs their agent's tools:")
+    with tempfile.TemporaryDirectory() as td:
+        root = build(Path(td))
+        write(root, ".claude/agents/reader.md",
+              "---\nname: reader\ntools: Read, Grep, Glob, Bash\n---\nread only\n")
+        write(root, ".claude/agents/writer.md",
+              "---\nname: writer\ntools: Read, Grep, Glob, Bash, Agent, Write, Edit\n---\ncan write\n")
+        write(root, ".claude/agents/unrestricted.md",
+              "---\nname: unrestricted\n---\nno tools: field, inherits everything\n")
+        write(root, ".claude/agents/narrowed.md",
+              "---\nname: narrowed\ntools: Read, Agent(explorer), Write\n---\nparenthesised\n")
+
+        # RED: the real bug -- declares Write, forks into a read-only agent.
+        write(root, ".claude/skills/bad/SKILL.md",
+              "---\nname: bad\nallowed-tools: Read, Write, Edit, Agent\ncontext: fork\nagent: reader\n---\nx\n")
+        # RED: names an agent with no definition at all.
+        write(root, ".claude/skills/ghost/SKILL.md",
+              "---\nname: ghost\nallowed-tools: Read\ncontext: fork\nagent: nobody\n---\nx\n")
+        # GREEN: agent grants everything the skill declares.
+        write(root, ".claude/skills/good/SKILL.md",
+              "---\nname: good\nallowed-tools: Read, Write, Edit, Agent\ncontext: fork\nagent: writer\n---\nx\n")
+        # GREEN: agent omits tools:, so it inherits everything.
+        write(root, ".claude/skills/inherits/SKILL.md",
+              "---\nname: inherits\nallowed-tools: Read, Write\ncontext: fork\nagent: unrestricted\n---\nx\n")
+        # GREEN: Agent(explorer) still grants the Agent tool -- the parens narrow, not revoke.
+        write(root, ".claude/skills/narrow/SKILL.md",
+              "---\nname: narrow\nallowed-tools: Read, Write, Agent\ncontext: fork\nagent: narrowed\n---\nx\n")
+        # GREEN: no fork at all, so the agent's tools are irrelevant.
+        write(root, ".claude/skills/nofork/SKILL.md",
+              "---\nname: nofork\nallowed-tools: Read, Write, Edit, Agent\n---\nx\n")
+        commit(root, "src", ".claude")
+        fs = findings(root)
+
+        gap = [f for f in fs if f["kind"] == "fork-tool-gap"]
+        expect(any(f["path"].endswith("bad/SKILL.md") for f in gap),
+               "fork-tool-gap fires when the agent cannot do what the skill declares")
+        expect(gap and all(t in gap[0]["detail"] for t in ("Write", "Edit", "Agent")),
+               "the finding names every missing tool")
+        expect(gap and gap[0]["blocking"], "fork-tool-gap blocks")
+        expect(any(f["kind"] == "fork-agent-missing" and f["path"].endswith("ghost/SKILL.md")
+                   for f in fs), "fork-agent-missing fires on an undefined agent")
+
+        for ok in ("good", "inherits", "narrow", "nofork"):
+            expect(not any(f["path"].endswith(ok + "/SKILL.md") for f in fs),
+                   "GREEN CONTROL: {} produces no fork finding".format(ok))
+
+
 def test_links():
     print("links:")
     with tempfile.TemporaryDirectory() as td:
@@ -244,7 +292,7 @@ def main():
         print("kb_check.py not found next to this test", file=sys.stderr)
         return 2
     for fn in (test_docs, test_stale, test_freshness_window, test_rules_and_skills,
-               test_dead_glob_needs_source, test_links, test_write_and_prune):
+               test_dead_glob_needs_source, test_fork_agents, test_links, test_write_and_prune):
         fn()
     print()
     if FAILURES:

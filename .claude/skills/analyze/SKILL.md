@@ -4,7 +4,7 @@ description: Repo-wide survey — structure, dependencies, conventions, complexi
 argument-hint: [path] (defaults to the whole repo)
 allowed-tools: Read, Grep, Glob, Bash, Agent, Write, Edit
 context: fork
-agent: analyzer
+agent: doc-writer
 background: false
 ---
 

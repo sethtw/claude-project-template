@@ -4,7 +4,7 @@ description: Deep analysis of a file, directory, or subsystem — purpose, publi
 argument-hint: <file|dir|subject> [--no-save]
 allowed-tools: Read, Grep, Glob, Bash, Agent, Write, Edit
 context: fork
-agent: analyzer
+agent: doc-writer
 background: false
 ---
 

@@ -4,7 +4,7 @@ description: Onboard a project or an unfamiliar surface. On a fresh clone it boo
 argument-hint: <package|path|surface> [--quick] [--update]
 allowed-tools: Read, Grep, Glob, Bash, Agent, Write, Edit
 context: fork
-agent: analyzer
+agent: doc-writer
 background: false
 ---
 
