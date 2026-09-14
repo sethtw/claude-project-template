@@ -1,92 +1,60 @@
-# Knowledge Base Index
+# Memory Index
 
-> Master navigation hub for the project knowledge system. Start here to find any information.
+> Navigation hub for durable project knowledge. Start here.
 
-## Quick Stats
+## The bar for this directory
 
-| Metric | Count | Last Updated |
-|--------|-------|--------------|
-| Total Documents | 0 | - |
-| L0 (Discovery) | 0 | - |
-| L1 (Triage) | 0 | - |
-| L2+ (Analyzed) | 0 | - |
-| Concepts | 0 | - |
+`.claude/memory/` holds **judgment that cannot be re-derived** — why the architecture is shaped
+this way, what was tried and abandoned, which constraints are real. It is hand-curated, and
+`/initialize` writes here exactly once, on a fresh clone.
 
----
+Derived, regenerable analysis belongs in `.claude/docs/` instead, where `/index` can detect when
+it has drifted. Anything recoverable from `grep` and `git log` belongs in neither.
 
-## Navigation
+A file still carrying `<!-- template-default -->` has never been filled in. Treat its contents as
+placeholder, not as fact — an agent that reads "(not set)" as a researched answer is worse off
+than one that reads nothing.
 
-### Core Memory
-| File | Purpose | When to Read |
+## Core
+
+| File | Purpose | When to read |
 |------|---------|--------------|
+| [Project Brief](project_brief.md) | Stack, architecture, commands | New to the project |
+| [Product Context](product_context.md) | Problem, users, goals | Planning a feature |
 | [Active Context](active_context.md) | Current session work | Every session start |
-| [Project Brief](project_brief.md) | Tech stack, architecture | New to project |
-| [Product Context](product_context.md) | Business goals, users | Feature planning |
 | [Progress](progress.md) | Roadmap, milestones | Status check |
 
-### Progress Tracking
-| File | Purpose | When to Read |
-|------|---------|--------------|
-| [Completed Tasks](progress/completed_tasks.md) | Historical log | Reviewing past work |
-| [Technical Debt](progress/technical_debt.md) | Known issues, prioritized | Planning refactoring |
-| [Architecture Notes](progress/architecture_notes.md) | Design decisions | Understanding rationale |
+## Patterns
 
-### Indices
-| Index | Purpose | Location |
-|-------|---------|----------|
-| [Schemas](_schemas.md) | L0-L3 depth definitions | .claude/memory/ |
-| [Registry](_registry.md) | All indexed documents | .claude/memory/ |
-| [Concepts](_concepts.md) | Key concepts graph | .claude/memory/ |
-| [Patterns](system_patterns.md) | Development patterns | .claude/memory/ |
-| [State](../state/_index.md) | Active operations | .claude/state/ |
+| File | Read when |
+|------|-----------|
+| [System Patterns](system_patterns.md) | Index of the pattern files below |
+| [Architecture](patterns/architecture.md) | Structure, error handling, config |
+| [Development](patterns/development.md) | **Always** — model/effort selection, the verification bar, autonomy |
+| [Testing](patterns/testing.md) | Writing or reviewing tests |
+| [Known Issues](patterns/known_issues.md) | Debugging, or before blaming your own change |
 
-### Configuration & Settings
-| File | Purpose | Location |
-|------|---------|----------|
-| [SETTINGS-SCHEMA](../SETTINGS-SCHEMA.md) | Settings reference | .claude/ |
-| [settings.local.json](../settings.local.json) | Project configuration | .claude/ |
+## Progress detail
 
-### Skills & Agents
-| Directory | Purpose |
-|-----------|---------|
-| [Skills](../skills/) | Semantic discovery skills |
-| [Agents](../agents/) | Specialized subagents |
-| [Rules](../rules/) | Path-scoped standards |
-| [Commands](../commands/) | Slash command definitions |
+| File | Purpose |
+|------|---------|
+| [Completed Tasks](progress/completed_tasks.md) | Historical log |
+| [Technical Debt](progress/technical_debt.md) | Known issues, prioritized |
+| [Architecture Notes](progress/architecture_notes.md) | Design decisions and rationale |
 
----
+## Elsewhere in `.claude/`
 
-## Session Quick Actions
+| Location | Holds | Maintained by |
+|----------|-------|---------------|
+| `.claude/docs/` | Derived analysis with drift detection | `/deep`, `/initialize`, `/index` |
+| `.claude/rules/` | Path-scoped coding standards | Hand-written |
+| `.claude/skills/` | Workflow and domain skills | Hand-written |
+| `.claude/agents/` | Subagent definitions | Hand-written |
+| `.claude/state/` | In-flight operation state | `/architect`, `/implement`, `/refactor`, `/migrate` |
 
-### Starting a Session
-1. Read this index for orientation
-2. Check [Active Context](active_context.md) for last session's state
-3. Review any [active operations](../state/_index.md)
+## What is deliberately not here
 
-### Finding Information
-- **By file path**: Check [Registry](_registry.md)
-- **By concept**: Check [Concepts](_concepts.md)
-- **By pattern**: Check [Patterns](system_patterns.md)
-
-### Deepening Knowledge
-- Use `/index` to scan codebase to L0
-- Use `/deep <path>` to analyze specific files to L2/L3
-- Use `/context` to see current memory state
-
----
-
-## Update Protocol
-
-This index is updated:
-- After `/index` scans (document counts)
-- After `/deep` analysis (depth promotions)
-- After concept extraction (concept counts)
-- Manually when adding new indices
-
----
-
-## Cross-References
-
-- **Skills load this**: codebase-navigator, feature-integration
-- **Commands reference this**: /initialize, /index, /deep, /context, /analyze
-- **Updated by**: /initialize, /index, /deep commands
+**A registry of source files.** No `DOC_XXX` IDs, no L0–L3 depth tiers, no per-file index of the
+tree. Such a registry is derivable from `grep` and `git log`, so it earns no place in curated
+memory, and in an active repo it is stale within days. A confidently wrong index is worse than no
+index. To find source, use the `explorer` agent or the `codebase-navigator` skill.

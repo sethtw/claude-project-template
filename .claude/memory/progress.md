@@ -1,5 +1,8 @@
 # Project Progress
 
+<!-- template-default -->
+<!-- Remove this marker when real content lands here. `/initialize` removes it per file it fills. -->
+
 > Roadmap, milestones, and progress tracking.
 
 ## Status Dashboard

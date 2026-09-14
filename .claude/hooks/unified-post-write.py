@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """
-Unified post-write hook: Combines session tracking, state syncing, and registry staleness.
+Unified post-write hook: session tracking + state syncing.
 
-Runs all three operations in parallel using ThreadPoolExecutor for 50-70% faster execution.
+Runs both operations in parallel using ThreadPoolExecutor.
 
 Operations:
 1. Session Tracker - Updates active_context.md with file modifications
 2. State Sync - Syncs state file changes to state/_index.md
-3. Registry Staleness - Marks registry entries as stale when source files change
 
 Features:
 - Parallel execution via ThreadPoolExecutor
@@ -227,119 +226,6 @@ def sync_state(file_path: str, project_root: Path) -> None:
 
 
 # ============================================================================
-# REGISTRY STALENESS
-# ============================================================================
-
-def find_registry_entry(content: str, file_path: str, project_root: Path) -> tuple[str, str] | None:
-    """
-    Find a registry entry for the given file path.
-
-    Returns (old_line, match_info) if found, None otherwise.
-    """
-    # Get various path representations to search for
-    path = Path(file_path)
-
-    try:
-        rel_path = path.relative_to(project_root)
-    except ValueError:
-        rel_path = path
-
-    # Patterns to search for in registry
-    search_patterns = [
-        str(rel_path),
-        str(rel_path).replace("\\", "/"),
-        path.name,
-    ]
-
-    for pattern in search_patterns:
-        # Look for table row containing this path
-        escaped = re.escape(pattern)
-        row_match = re.search(rf"^\|[^|]*\| *{escaped} *\|.*$", content, re.MULTILINE)
-        if row_match:
-            return row_match.group(0), pattern
-
-    return None
-
-
-def mark_entry_stale(content: str, old_line: str, timestamp: str) -> str:
-    """
-    Mark a registry entry as stale by adding a modification indicator.
-
-    Strategy: Add or update a "Modified" notation in the Notes column,
-    or prepend with a warning emoji if no Notes column exists.
-    """
-    # Count columns in the line
-    columns = old_line.split("|")
-    num_columns = len([c for c in columns if c.strip() or c == ""])
-
-    if num_columns >= 5:
-        # Has enough columns - update the last column (Notes)
-        parts = old_line.rsplit("|", 2)
-        if len(parts) >= 2:
-            # Preserve the structure but update notes
-            notes_col = parts[-2].strip()
-            if "Modified:" in notes_col:
-                # Already has modification marker, update timestamp
-                notes_col = re.sub(r"Modified: [\d\-: ]+", f"Modified: {timestamp}", notes_col)
-            else:
-                # Add modification marker
-                if notes_col and notes_col != "-":
-                    notes_col = f"{notes_col}; Modified: {timestamp}"
-                else:
-                    notes_col = f"Modified: {timestamp}"
-
-            new_line = f"{parts[0]}| {notes_col} |"
-            return content.replace(old_line, new_line)
-
-    # Fallback: prepend warning emoji to the ID column if not already present
-    if not old_line.startswith("| ⚠"):
-        # Find first column content
-        first_col_match = re.match(r"\| *([^|]+) *\|", old_line)
-        if first_col_match:
-            first_col = first_col_match.group(1).strip()
-            if not first_col.startswith("⚠"):
-                new_first_col = f"⚠️ {first_col}"
-                new_line = old_line.replace(f"| {first_col} |", f"| {new_first_col} |", 1)
-                return content.replace(old_line, new_line)
-
-    return content
-
-
-def mark_registry_stale(file_path: str, project_root: Path) -> None:
-    """Mark registry entries as stale when source files change."""
-    # Skip files inside .claude/ directory
-    if is_inside_claude_dir(file_path):
-        return
-
-    try:
-        # Read _registry.md
-        registry_path = project_root / ".claude" / "memory" / "_registry.md"
-        content = read_markdown_file(registry_path)
-
-        if not content:
-            # No registry file exists yet
-            return
-
-        # Check if file exists in registry
-        result = find_registry_entry(content, file_path, project_root)
-        if not result:
-            # File not in registry - nothing to mark stale
-            return
-
-        old_line, matched_pattern = result
-        timestamp = get_timestamp()
-
-        # Mark the entry as stale
-        new_content = mark_entry_stale(content, old_line, timestamp)
-
-        if new_content != content:
-            write_markdown_file(registry_path, new_content)
-
-    except Exception as e:
-        print(f"registry-staleness: {e}", file=sys.stderr)
-
-
-# ============================================================================
 # MAIN
 # ============================================================================
 
@@ -370,12 +256,11 @@ def main():
             print("{}")
             sys.exit(0)
 
-        # Run all three operations in parallel
-        with ThreadPoolExecutor(max_workers=3) as executor:
+        # Run both operations in parallel
+        with ThreadPoolExecutor(max_workers=2) as executor:
             futures = [
                 executor.submit(track_session, file_path, tool_name, project_root),
                 executor.submit(sync_state, file_path, project_root),
-                executor.submit(mark_registry_stale, file_path, project_root),
             ]
             # Wait for all to complete (errors are already logged to stderr in each function)
             for future in futures:

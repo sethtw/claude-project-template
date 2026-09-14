@@ -1,134 +1,85 @@
 # System Patterns Index
 
-> Navigation hub for development patterns and standards.
+> Navigation hub for the patterns, skills, agents, and rules in this repo.
 
-## Pattern Files
+## Pattern files
 
-| File | Description | When to Read |
-|------|-------------|--------------|
-| [architecture.md](patterns/architecture.md) | Project structure, error handling | Understanding codebase |
-| [development.md](patterns/development.md) | Workflow, model selection, autonomy | Planning work |
-| [testing.md](patterns/testing.md) | Test patterns, coverage | Writing tests |
-| [known_issues.md](patterns/known_issues.md) | Outstanding issues, quick fixes | Debugging |
+| File | Read when |
+|------|-----------|
+| [architecture.md](patterns/architecture.md) | Structure, error handling, config |
+| [development.md](patterns/development.md) | **Always** — model/effort selection, verification bar, autonomy |
+| [testing.md](patterns/testing.md) | Writing or reviewing tests |
+| [known_issues.md](patterns/known_issues.md) | Debugging, or before blaming your own change |
 
-## Rules (Path-Scoped)
+## Workflow skills
 
-Located in `.claude/rules/`:
+Invoke with `/<name>`. Each carries its own frontmatter; none pin a model tier.
 
-| Rule | Applies To | Purpose |
-|------|------------|---------|
-| [typescript.md](../rules/typescript.md) | `src/**/*.{ts,tsx}` | TypeScript standards |
-| [testing.md](../rules/testing.md) | `**/*.test.{ts,tsx}` | Test conventions |
-| [security.md](../rules/security.md) | `**/auth/**/*`, `**/api/**/*` | Security requirements |
+| Skill | Use for |
+|-------|---------|
+| `/initialize` | Bootstrap a fresh clone, or map an unmapped surface into `.claude/docs/` |
+| `/analyze` | Repo-wide survey: structure, conventions, hotspots, debt |
+| `/deep` | One file or subsystem in depth, persisted with drift detection |
+| `/index` | Knowledge-base drift report and registry refresh |
+| `/context` | Read-only dashboard: memory population, doc drift, active operations |
+| `/architect` | Implementation plan, no code |
+| `/implement` | Execute a plan: discover → write → verify → fix |
+| `/tdd` | Red-green-refactor for new behavior |
+| `/test-gen` | Coverage for code that already exists |
+| `/refactor` | Multi-file structural change with a call-site inventory |
+| `/migrate` | Framework or version upgrade with phase tracking |
 
-## Skills
+## Domain skills
 
-Located in `.claude/skills/`:
+Loaded by name when relevant; not usually invoked directly.
 
-| Skill | Model | Trigger Keywords |
-|-------|-------|------------------|
-| tdd-workflow | sonnet | TDD, test first, red-green |
-| security-review | sonnet | security, vulnerability, OWASP |
-| performance-analysis | sonnet | slow, optimize, bottleneck |
-| api-design | sonnet | REST, endpoint, schema |
-| database-patterns | sonnet | query, migration, index |
-| feature-integration | opus | plan feature, integration, scope |
-| ux-workflow-analysis | sonnet | UI issues, layout, z-index |
-| codebase-navigator | haiku | find, where is, explore |
+| Skill | Covers |
+|-------|--------|
+| `codebase-navigator` | Search strategy, and when an empty result is not evidence |
+| `wiring-audit` | Built-but-not-connected: dead exports, facade UIs, half-adopted patterns |
+| `api-design` | REST and GraphQL endpoint design |
+| `database-patterns` | Schema, queries, migrations, indexes |
+| `performance-analysis` | Bottlenecks, profiling, memory |
+| `security-audit` | OWASP, authn/authz, injection, secrets |
+| `ux-workflow-analysis` | User journeys, layout, accessibility |
 
-### Skill Activation by Command
-
-| Command | Primary Skills | Secondary Skills | Model |
-|---------|----------------|------------------|-------|
-| /initialize | codebase-navigator | - | haiku/sonnet |
-| /index | codebase-navigator | - | haiku |
-| /analyze | codebase-navigator, performance-analysis | database-patterns | haiku/sonnet |
-| /deep | codebase-navigator | feature-integration | sonnet/opus |
-| /architect | feature-integration | codebase-navigator | opus |
-| /implement | tdd-workflow, performance-analysis | security-review | sonnet/opus |
-| /tdd | tdd-workflow | - | sonnet |
-| /test-gen | tdd-workflow | - | sonnet |
-| /code-review | security-review, performance-analysis | ux-workflow-analysis | sonnet |
-| /review | security-review | - | sonnet |
-| /refactor | performance-analysis | codebase-navigator | sonnet/opus |
-| /migrate | feature-integration | codebase-navigator | sonnet/opus |
-| /cleanup | codebase-navigator | - | haiku |
+`security-audit` is named to avoid colliding with Claude Code's built-in `/security-review`.
+Likewise, this template ships no `/code-review` or `/review` — the built-in `/code-review` covers
+both, with effort levels and a `--fix` mode.
 
 ## Agents
 
-Located in `.claude/agents/`:
+| Agent | Use for |
+|-------|---------|
+| `explorer` | Where is X, what calls Y, what exists |
+| `analyzer` | How does X work, what breaks if I change Y, review this |
+| `test-runner` | Run the real gates, diagnose a red to a root cause |
+| `security-auditor` | Diffs touching auth, input parsing, queries, paths, external I/O |
 
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| explorer | haiku | Fast codebase search |
-| analyzer | sonnet | Deep code analysis |
-| security-auditor | sonnet | Security scanning |
-| test-runner | haiku | Test execution |
+All four use `model: inherit` — a subagent matches the calling session rather than being pinned to
+a cheaper tier. Pinning a reviewer below the author is how a review becomes a rubber stamp.
 
-## Hooks (Auto-Tracking)
+## Path-scoped rules
 
-The project uses Claude Code hooks (`.claude/settings.local.json`) for automatic context tracking:
+`.claude/rules/*.md` load automatically for files matching their `paths:` frontmatter.
 
-| Hook | Trigger | Updates | Purpose |
-|------|---------|---------|---------|
-| session-history.py | Session start | state/_index.md, active_context.md | Archives previous session, resets counters |
-| startup.sh | Session start | - | Displays welcome banner with commands |
-| unified-post-write.py | File Write/Edit | active_context.md, state/_index.md, _registry.md | **Unified**: Logs file edits, syncs state, marks staleness (50-70% faster via parallel) |
-| todo-context-sync.py | TodoWrite | active_context.md | Syncs todo items to context |
-| command-tracker.py | Skill tool | state/_index.md | Increments "Commands Run" counter |
+| Rule | Applies to |
+|------|-----------|
+| `typescript.md` | `src/**/*.{ts,tsx}`, `lib/**/*.{ts,tsx}` |
+| `testing.md` | Test files |
+| `security.md` | Auth, API, middleware |
 
-### Hook Configuration
+Edit the `paths:` globs to match this project's real layout. A rule whose glob matches no tracked
+file can never load — `python .claude/hooks/kb_check.py` reports that as `dead-glob`.
 
-Defined in `.claude/settings.local.json`:
-- **SessionStart** - Runs at session start
-- **PreCompact** - Runs before context compaction (preserves WIP context)
-- **PostToolUse** - Runs after Write, Edit, or TodoWrite tools
+## Hooks
 
-### What Hooks Track Automatically
+| Hook | Event | Writes |
+|------|-------|--------|
+| `session-history.py` | SessionStart | Archives the prior session, resets counters |
+| `session_start_brief.py` | SessionStart | Nothing — prints repo and knowledge-base state |
+| `unified-post-write.py` | Write/Edit | `active_context.md`, `state/_index.md` |
+| `todo-context-sync.py` | TodoWrite | `active_context.md` |
+| `command-tracker.py` | Skill | `state/_index.md` counter |
 
-1. **File modifications** → "Completed This Session" table in active_context.md
-2. **State file updates** → "Active States" table in state/_index.md
-3. **Source file changes** → Staleness markers in _registry.md
-4. **Todo progress** → "In Progress" and "Completed This Session" tables
-
-See [development.md](patterns/development.md) for detailed hook configuration.
-
----
-
-## Critical Rules (Quick Reference)
-
-### Safety
-- Never delete files without confirmation
-- Never use `rm -rf` or force operations
-- Create backup branches for risky operations
-
-### Efficiency
-- Haiku for speed, Sonnet for quality, Opus for complexity
-- Run tests automatically
-- Batch operations for consistency
-
-### Quality
-- All changes must have tests
-- Follow existing patterns
-- Self-assess after major work
-
----
-
-## When to Read Which File
-
-| Task | Read |
-|------|------|
-| Understanding codebase structure | [architecture.md](patterns/architecture.md) |
-| Planning work, model selection | [development.md](patterns/development.md) |
-| Writing tests | [testing.md](patterns/testing.md) |
-| Debugging known issues | [known_issues.md](patterns/known_issues.md) |
-| TypeScript conventions | [.claude/rules/typescript.md](../rules/typescript.md) |
-| Security requirements | [.claude/rules/security.md](../rules/security.md) |
-
----
-
-## Cross-References
-
-- **Used by**: All slash commands
-- **Updates**: When patterns change
-- **See also**: [Knowledge Index](_index.md)
+Full detail in [SETTINGS-SCHEMA.md](../SETTINGS-SCHEMA.md).

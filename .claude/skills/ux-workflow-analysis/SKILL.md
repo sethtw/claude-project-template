@@ -2,7 +2,6 @@
 name: ux-workflow-analysis
 description: UI/UX analysis, user journey, workflow validation, z-index issues, layout problems, accessibility, responsive design
 allowed-tools: Read, Grep, Glob, WebFetch
-model: sonnet
 ---
 
 # UX Workflow Analysis Skill

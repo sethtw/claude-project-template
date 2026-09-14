@@ -1,5 +1,8 @@
 # Product Context
 
+<!-- template-default -->
+<!-- Remove this marker when real content lands here. `/initialize` removes it per file it fills. -->
+
 > Business context and product vision. Keep development aligned with goals.
 
 ## Problem Statement

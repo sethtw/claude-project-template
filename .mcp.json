@@ -1,14 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/mcp.json",
   "mcpServers": {
-    "filesystem": {
-      "type": "stdio",
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-filesystem", "C:\\repos\\claude-project-template"],
-      "env": {
-        "ALLOWED_PATHS": "C:\\repos\\claude-project-template"
-      }
-    },
     "github": {
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp/",
@@ -18,9 +10,9 @@
     }
   },
   "_comments": {
-    "filesystem": "Local file system access for the project",
-    "github": "GitHub integration for PR, issues, and repo operations. Requires GITHUB_TOKEN env var.",
-    "adding_servers": "Use 'claude mcp add' to add new servers or edit this file directly",
-    "environment_vars": "Variables like ${VAR} are expanded from environment at runtime"
+    "github": "PR, issue, and repo operations. Requires GITHUB_TOKEN in the environment. Claude Code asks before enabling a project server on first use; approve it per project rather than pre-approving it here.",
+    "no_filesystem_server": "A filesystem MCP server is deliberately absent. The built-in Read, Glob, Grep, Write, and Edit tools already cover local files, scoped to the session's working directories -- adding a filesystem server duplicates them, needs a hardcoded absolute path that is wrong in every clone, and costs a permission entry per tool.",
+    "adding_servers": "Run `claude mcp add`, or add an entry here. Variables like ${VAR} expand from the environment at runtime.",
+    "enabling": "Approve servers per project when prompted. `enabledMcpjsonServers` in .claude/settings.json can pre-approve specific ones, and `enableAllProjectMcpServers` pre-approves all -- both wait for workspace trust."
   }
 }

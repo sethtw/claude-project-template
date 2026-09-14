@@ -2,7 +2,6 @@
 name: api-design
 description: REST API design, GraphQL, endpoint design, request/response schemas, HTTP methods
 allowed-tools: Read, Grep, Glob, Edit, Write
-model: sonnet
 ---
 
 # API Design Skill

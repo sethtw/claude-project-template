@@ -1,5 +1,8 @@
 # Architecture Patterns
 
+<!-- template-default -->
+<!-- Remove this marker when real content lands here. `/initialize` removes it per file it fills. -->
+
 > Project structure, error handling, and architectural decisions.
 
 ## Project Structure
@@ -237,6 +240,6 @@ logger.info('User created', {
 
 ## Cross-References
 
-- **Skills**: architecture patterns used by feature-integration
+- **Skills**: architecture patterns used by wiring-audit
 - **Rules**: security.md for auth patterns
 - **Updated by**: /analyze command

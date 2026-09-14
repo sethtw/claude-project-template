@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "_comment": [
+    "Copy to .claude/settings.local.json for PERSONAL overrides. That file is gitignored.",
+    "Shared, committed configuration -- hooks and the team permission baseline -- lives in",
+    ".claude/settings.json. Put a rule here only when it should apply to you and not the team;",
+    "local settings sit ABOVE shared project settings in precedence.",
+    "Note: permissions.defaultMode values 'auto' and 'bypassPermissions' do not take effect",
+    "from a project or local file -- set those in ~/.claude/settings.json or pass",
+    "--permission-mode for one session."
+  ],
+  "permissions": {
+    "allow": []
+  }
+}

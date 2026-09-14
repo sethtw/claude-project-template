@@ -18,7 +18,7 @@
 |--------|-------|
 | Session ID | - |
 | Started | - |
-| Documents Touched | 0 |
+| Files Touched | 0 |
 | Commands Run | 0 |
 
 ### Session History
@@ -142,6 +142,6 @@ All state files follow this structure:
 
 ## Cross-References
 
-- **Commands**: `/refactor`, `/migrate`, `/code-review`, `/review`, `/index`, `/initialize`, `/cleanup`
+- **Commands**: `/refactor`, `/migrate`, `/implement`, `/architect`
 - **Memory**: Updates `active_context.md` with operation status
 - **Pattern**: See `development.md` for state management patterns

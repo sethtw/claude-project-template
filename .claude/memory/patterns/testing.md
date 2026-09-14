@@ -1,5 +1,8 @@
 # Testing Patterns
 
+<!-- template-default -->
+<!-- Remove this marker when real content lands here. `/initialize` removes it per file it fills. -->
+
 > Test organization, conventions, and coverage strategies.
 
 ## Test Organization
@@ -234,6 +237,6 @@ export const invalidEmails = [
 
 ## Cross-References
 
-- **Skills**: tdd-workflow for test-first patterns
+- **Skills**: tdd for test-first patterns
 - **Rules**: testing.md for conventions
 - **Agents**: test-runner for execution

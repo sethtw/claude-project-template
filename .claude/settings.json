@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git merge-base:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git stash:*)",
+      "Bash(git worktree:*)",
+      "Bash(npm run:*)",
+      "Bash(npm test:*)",
+      "Bash(npm ci:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm audit:*)",
+      "Bash(pnpm run:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm install:*)",
+      "Bash(yarn run:*)",
+      "Bash(python .claude/hooks/kb_check.py:*)",
+      "Bash(python .claude/hooks/test_kb_check.py:*)",
+      "Bash(pytest:*)",
+      "Bash(go test:*)",
+      "Bash(cargo test:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(sed -n:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(jq:*)",
+      "Bash(pwd)",
+      "Bash(date)",
+      "WebFetch(domain:code.claude.com)",
+      "WebFetch(domain:docs.claude.com)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(npm publish:*)",
+      "Bash(pnpm publish:*)",
+      "Bash(docker:*)",
+      "Bash(kubectl:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean:*)",
+      "Bash(git filter-branch:*)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(**/*.pem)",
+      "Read(**/id_rsa*)",
+      "Read(**/id_ed25519*)",
+      "Read(**/.aws/credentials)",
+      "Edit(./.env)",
+      "Edit(./.env.*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          { "type": "command", "command": "python .claude/hooks/session-history.py" },
+          { "type": "command", "command": "python .claude/hooks/session_start_brief.py" }
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
+          { "type": "command", "command": "python .claude/hooks/session_start_brief.py" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "python .claude/hooks/unified-post-write.py" }
+        ]
+      },
+      {
+        "matcher": "TodoWrite",
+        "hooks": [
+          { "type": "command", "command": "python .claude/hooks/todo-context-sync.py" }
+        ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          { "type": "command", "command": "python .claude/hooks/command-tracker.py" }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo {\"systemMessage\": \"COMPACT INSTRUCTIONS: Preserve (1) file paths and the symbols being changed, (2) decisions made and why, (3) remaining tasks with dependencies, (4) exact error text and test counts, (5) architectural understanding gained. Preserve which claims were VERIFIED by running a command versus inferred from reading; a summary that flattens the two turns a hypothesis into a fact.\"}"
+          }
+        ]
+      },
+      {
+        "matcher": "manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo {\"systemMessage\": \"COMPACT INSTRUCTIONS: Preserve (1) file paths and the symbols being changed, (2) decisions made and why, (3) remaining tasks with dependencies, (4) exact error text and test counts, (5) architectural understanding gained. Preserve which claims were VERIFIED by running a command versus inferred from reading; a summary that flattens the two turns a hypothesis into a fact.\"}"
+          }
+        ]
+      }
+    ]
+  }
+}

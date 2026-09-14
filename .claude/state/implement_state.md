@@ -172,6 +172,6 @@ To restart from specific stage:
 ## Cross-References
 
 - **Created by**: `/implement`
-- **Skills used**: feature-integration, codebase-navigator, tdd-workflow, performance-analysis
+- **Skills used**: wiring-audit, codebase-navigator, tdd, performance-analysis
 - **Agents used**: explorer, analyzer, test-runner
 - **Updates**: `active_context.md` with plan and progress

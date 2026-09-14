@@ -1,163 +1,80 @@
 ---
 name: codebase-navigator
-description: Codebase exploration, file search, pattern discovery, architecture understanding, dependency tracing
-allowed-tools: Read, Grep, Glob, Task
-model: haiku
+description: Search strategy for finding code fast — locating symbols, tracing dependencies both directions, and mapping unfamiliar structure. Use when the question is "where is X", "what calls Y", or "how does Z reach the UI", and whenever a search returns an empty result you are about to report as an absence.
+allowed-tools: Read, Grep, Glob, Bash, Agent
 ---
 
-# Codebase Navigator Skill
+# Codebase Navigator
 
-> Efficiently explore and understand codebases.
+> How to search, and how to know whether the search worked.
 
-## When Activated
+## Order of operations
 
-User mentions: "find", "where is", "how does", "show me", "explore", "navigate", "understand codebase"
+1. **Glob for shape** — narrow to a directory or file pattern before grepping content.
+2. **Grep for the symbol** — with a pattern specific enough that prose does not match it.
+3. **Read only what the grep points at** — and read the whole file, not the matched region.
 
-## Navigation Strategies
-
-### 1. Entry Point Discovery
-
-```bash
-# Find main entry points
-Glob pattern: "**/main.{ts,js,py}", "**/index.{ts,js,py}", "**/app.{ts,js,py}"
-
-# Find configuration files
-Glob pattern: "**/{package,tsconfig,webpack,vite}.{json,js,ts}"
-
-# Find route definitions
-Grep pattern: "router\.|Route|createBrowserRouter|express\(\)"
-```
-
-### 2. Feature Location
-
-```bash
-# By feature name
-Grep: "FeatureName|featureName|feature_name|feature-name"
-
-# By file pattern
-Glob: "**/feature/**/*", "**/features/{name}/**/*"
-
-# By export
-Grep: "export.*FeatureName"
-```
-
-### 3. Dependency Tracing
-
-**Upstream** (what this depends on):
-```bash
-Grep in file: "import.*from|require\("
-```
-
-**Downstream** (what depends on this):
-```bash
-Grep: "from ['\"].*{filename}|require\(['\"].*{filename}"
-```
-
-### 4. Pattern Discovery
-
-```bash
-# Find similar implementations
-Grep: "class.*extends|implements"
-
-# Find hooks/middleware
-Grep: "use[A-Z]|before|after|middleware"
-
-# Find event handlers
-Grep: "on[A-Z].*=|addEventListener|emit\("
-```
-
-## Search Efficiency
-
-### Start Broad, Then Narrow
+Fan out with parallel `explorer` agents when the search paths are genuinely independent:
 
 ```
-1. Glob for file types: "**/*.ts"
-2. Grep for general term: "user"
-3. Grep for specific: "getUserById"
-4. Read specific file
+explorer: every definition of <symbol>
+explorer: every call site of <symbol> in source
+explorer: every reference in tests, fixtures, and mocks
+explorer: dynamic references — string imports, DI keys, route tables, reflection
 ```
 
-### Use Parallel Searches
+One agent per independent path. Splitting one path across agents just duplicates work.
 
-```
-Task(model=haiku, prompt="Find all files in src/api/")
-Task(model=haiku, prompt="Find all files importing UserService")
-Task(model=haiku, prompt="Find all test files for users")
-```
+## Finding things
 
-### Know Common Structures
+| Goal | Approach |
+|------|----------|
+| Entry points | `Glob: **/{main,index,app}.{ts,js,py,go,rs}` |
+| Route definitions | Grep the router registration call, not the route strings |
+| What this depends on | Grep imports **within** the file |
+| What depends on this | Grep the module path and the exported name across the repo |
+| A convention | Read the two most recently changed files in that directory |
+| Where risk lives | Cross file size against `git log --name-only` change frequency |
 
-| Pattern | Typical Location |
-|---------|-----------------|
-| Routes | `src/routes/`, `src/api/` |
-| Components | `src/components/`, `src/ui/` |
-| Services | `src/services/`, `src/lib/` |
-| Types | `src/types/`, `src/@types/` |
-| Utils | `src/utils/`, `src/helpers/` |
-| Tests | `__tests__/`, `*.test.ts` |
-| Config | Root, `config/` |
+## The three ways a search lies
 
-## Quick Reference Queries
+An empty result is the least trustworthy output a search tool produces, because it looks the same
+in every failure mode.
 
-### "How does X work?"
-1. Find X definition: `Grep: "class X|function X|const X"`
-2. Find X usage: `Grep: "X\(|new X"`
-3. Find X tests: `Glob: "**/*X*.test.ts"`
+**1. The tool never looked.** `Grep` and `Glob` skip gitignored paths by default. A sweep for
+secrets, build output, or anything under an ignored directory returns clean because it never read
+the files. Prove reachability with a control: search the same scope for a string you know is
+there. If the control comes back empty, the absence is not evidence.
 
-### "Where is X used?"
-1. Find imports: `Grep: "import.*X.*from"`
-2. Find references: `Grep: "X\.|X\(|<X"`
+**2. The pattern could not match.** A regex with an unescaped brace, a name that is actually
+hyphenated, a symbol split across lines. Before believing a zero, run the pattern against a known
+positive.
 
-### "What calls X?"
-1. Find function calls: `Grep: "X\("`
-2. Trace up the call chain
+**3. It matched the wrong thing.** A hit inside a comment, a doc, a changelog, or a string literal
+is not the symbol. This corrupts counts and, worse, corrupts *names* — a refactor driven by a
+prose match renames the wrong identifier. Confirm each match is a declaration or a call.
 
-### "What does X depend on?"
-1. Read X file
-2. List imports
-3. Trace each import
+There is a fourth, specific to this work: **documenting the needle breaks the search.** Once you
+write the symbol you are hunting into a notes file in the repo, every later grep matches your own
+notes. Search first, write second, or exclude your scratch paths explicitly.
 
-## Output Format
+## Reporting a search
 
 ```markdown
-## Navigation: <Query>
+### Found: <query>
+- `path` → `symbol` — definition
+- `path` — 3 call sites
 
-### Files Found
-| File | Relevance | Key Content |
-|------|-----------|-------------|
-| src/services/user.ts | High | UserService class |
-| src/api/users.ts | High | API endpoints |
-| src/types/user.ts | Medium | Type definitions |
-
-### Architecture Notes
-- UserService is the core business logic
-- API layer is thin, delegates to service
-- Types are shared across modules
-
-### Suggested Deep Dives
-- `src/services/user.ts` - Main logic
-- `__tests__/user.test.ts` - Behavior examples
+### Searched and not found
+- <pattern>, across <scope> — control: searched for `<known string>`, got N hits, so the sweep reached the files
 ```
 
-## Used By
+Every count carries its population. "12 call sites" and "12 call sites across 40 of 210 files"
+are different claims, and only the second one can be acted on.
 
-### Commands
-- `/index` - Codebase scanning
-- `/deep` - File analysis
-- `/context` - Navigation
-- `/analyze` - Codebase exploration
-- `/implement` - Stage 1 discovery
-- `/refactor` - Finding affected files
-- `/test-gen` - Finding testable units
-- `/migrate` - Finding migration targets
-- `/initialize` - Initial codebase scan
+## Constraints
 
-### Agents
-- **explorer** - Primary skill
-
-## Integration
-
-- Primary skill for exploration queries
-- Uses haiku for speed
-- Populates registry when scanning
-- Updates `active_context.md` with findings
+- **Never report an absence without a positive control.**
+- Cite symbols, not line numbers — `:NN` is wrong after the next insertion above it.
+- Prefer `Grep`/`Glob` to shell equivalents; they respect ignore files and return structure.
+- Prefer `find` or `/bin/ls -1` over a bare `ls` — an alias can emit nothing through a pipe.

@@ -2,7 +2,6 @@
 name: database-patterns
 description: Database design, queries, migrations, indexes, ORM patterns, schema design
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write
-model: sonnet
 ---
 
 # Database Patterns Skill

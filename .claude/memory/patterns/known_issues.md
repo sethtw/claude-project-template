@@ -1,5 +1,8 @@
 # Known Issues
 
+<!-- template-default -->
+<!-- Remove this marker when real content lands here. `/initialize` removes it per file it fills. -->
+
 > Outstanding issues, deferred items, and common quick fixes.
 
 ## Active Issues
@@ -160,4 +163,4 @@ How to resolve permanently.
 ## Cross-References
 
 - **Updated by**: `/review`, `/code-review` commands
-- **Skills**: security-review for vulnerability issues
+- **Skills**: security-audit for vulnerability issues

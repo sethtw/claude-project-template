@@ -2,7 +2,6 @@
 name: performance-analysis
 description: Performance optimization, bottleneck identification, profiling, slow code, memory leaks
 allowed-tools: Read, Grep, Glob, Bash
-model: sonnet
 ---
 
 # Performance Analysis Skill

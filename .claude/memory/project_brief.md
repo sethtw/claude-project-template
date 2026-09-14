@@ -1,5 +1,8 @@
 # Project Brief
 
+<!-- template-default -->
+<!-- Remove this marker when real content lands here. `/initialize` removes it per file it fills. -->
+
 > High-level project overview. Read this first when new to the project.
 
 ## Overview

@@ -1,348 +1,89 @@
 # Development Patterns
 
-> Single source of truth for development workflows, model selection, and autonomy settings.
-
-## Autonomy Settings
-
-Process all development operations without confirmation:
-- Do not ask before reading files
-- Do not pause between test/lint/build steps
-- Auto-fix safe issues (formatting, imports, unused vars)
-- Run test suites automatically
-- Only prompt for destructive operations (file deletion, force push)
-
----
-
-## Model Selection Matrix
-
-| Task | Model | Rationale |
-|------|-------|-----------|
-| File scanning/searching | `haiku` | Fast pattern matching |
-| Linting/formatting | `haiku` | Rule-based, structural |
-| Dependency analysis | `haiku` | Package enumeration |
-| Simple docs (JSDoc) | `haiku` | Templated patterns |
-| Code generation | `sonnet` | Complex reasoning needed |
-| Bug analysis | `sonnet` | Context understanding |
-| Test generation | `sonnet` | Needs code understanding |
-| Refactoring | `sonnet` | Semantic changes |
-| Code review | `sonnet` | Quality requires depth |
-| Complex docs (guides) | `sonnet` | Needs context |
-| **Feature planning** | `opus` | Complex multi-system design |
-| **Architecture design** | `opus` | Critical structural decisions |
-| **Complex feature generation** | `opus` | Multi-file coordinated changes |
-| **Risk assessment** | `opus` | Understanding downstream impacts |
-| **UX workflow analysis** | `sonnet` | User journey validation |
-| **Feature integration** | `opus` | Multi-system impact analysis |
-
-**Hierarchy**: `haiku` for speed → `sonnet` for quality → `opus` for complexity.
-
-### Escalation Rules
-
-**Escalate to opus** when:
-- Planning features that touch 5+ files or 3+ systems
-- Making architectural decisions that are hard to reverse
-- Generating complex features with many integration points
-- Assessing risk for significant changes
-- Analyzing cross-system integration impacts
-
-**Stay with sonnet** when:
-- Single-system changes
-- Well-defined feature scope
-- Clear implementation path
-
-**Use haiku** when:
-- Speed is priority over depth
-- Pattern matching tasks
-- File enumeration and discovery
-
----
-
-## Parallel Processing
-
-Spawn up to 4 agents for independent work:
-
-```
-# Example: Multi-aspect code review
-Task(subagent_type=Explore, model=haiku, prompt="Scan for security issues...")
-Task(subagent_type=Explore, model=haiku, prompt="Scan for performance issues...")
-Task(subagent_type=Explore, model=haiku, prompt="Check test coverage...")
-Task(subagent_type=Explore, model=haiku, prompt="Check documentation...")
-# Consolidate with sonnet for prioritized report
-```
-
-**Rules**:
-- Use parallel agents for independent operations
-- Consolidate results after all complete
-- No confirmation between agent spawns
-- Max 4 concurrent agents
-
----
-
-## Batch Processing
-
-For large operations:
-
-| Setting | Default | Purpose |
-|---------|---------|---------|
-| Batch size | 10 files | Manageable chunks |
-| Test frequency | After each batch | Catch issues early |
-| State updates | After each batch | Enable resume |
-| Commit frequency | Per logical unit | Clean history |
-
-**Resume support**: All long operations can be interrupted and resumed via `.claude/state/`.
-
----
-
-## Development Workflow
-
-### Plan-Execute-Verify Cycle
-1. **Plan** in `active_context.md`
-   - Define scope and success criteria
-   - List files to modify
-   - Identify integration points
-
-2. **Execute** in atomic batches
-   - No confirmation between steps
-   - Update state after each batch
-   - Auto-fix safe issues
+> How work gets done in this repo: model and effort selection, the verification bar, and the
+> autonomy boundary. Not project-specific — this file ships with the template and applies as-is.
 
-3. **Verify** with tests
-   - Run automatically after changes
-   - Fix failures before continuing
-   - Update active context
+## Model and effort selection
 
-### Strict TDD Workflow
-1. **Red**: Write failing test first
-2. **Green**: Implement minimal solution
-3. **Refactor**: Improve with tests passing
-4. **Commit**: Auto-commit on green
+**Do not pin a model per task.** Earlier versions of this template assigned `haiku` to discovery,
+`sonnet` to writing, and `opus` to planning. That is obsolete, and it was always the wrong lever:
 
-### Atomic Commits
-- **Format**: `feat:`, `fix:`, `chore:`, `docs:`, `test:`
-- **Rule**: Tests must pass before commit
-- **Scope**: One logical change per commit
-- **Auto-stage**: Related files staged together
+- Model IDs move. A matrix naming specific tiers is wrong within a release or two, and a stale
+  matrix silently downgrades work.
+- The real cost driver is **context**, not tier. A discovery pass that reads forty files and
+  concludes one sentence is expensive because those forty files stay in context — not because of
+  which model read them.
+- Pinning a reviewer or verifier below the author is how a broken change gets a clean report.
 
----
+Use these instead:
 
-## Staged Execution Pattern (Cost Optimization)
+| Lever | Where | What it does |
+|-------|-------|--------------|
+| `model: inherit` | Agent frontmatter | Subagent matches the session. The default choice. |
+| `effort: low\|medium\|high\|xhigh\|max` | Skill or agent frontmatter | How hard to think, independent of model |
+| `context: fork` | Skill frontmatter | Runs in a subagent; its reads never enter the caller's context |
+| `background: false` | Skill frontmatter | With `context: fork`, wait for the result in this turn |
 
-For large implementations, use staged model execution to optimize costs:
+A forked skill sees **none** of the calling conversation, so it must restate everything it needs.
 
-### Token Cost Reference
+Set `effort: high` on planning, architecture, and audit skills. Leave everything else inheriting.
 
-| Model | Input | Output | Relative Cost |
-|-------|-------|--------|---------------|
-| Opus | $15/1M | $75/1M | 1x (baseline) |
-| Sonnet | $3/1M | $15/1M | 5x cheaper |
-| Haiku | $0.25/1M | $1.25/1M | 60x cheaper |
+## Delegation
 
-**Key insight**: Output tokens cost 5x input. Code generation = many output tokens.
+Spawn subagents when the work is genuinely independent — one per distinct search path, sent in a
+single message so they run concurrently. Splitting one search across four agents duplicates work
+and costs four contexts.
 
-### Five-Stage Execution
+| Agent | Use for |
+|-------|---------|
+| `explorer` | Where is X, what calls Y, what exists |
+| `analyzer` | How does X work, what breaks if I change Y, review this |
+| `test-runner` | Run the real gates, diagnose a red to a root cause |
+| `security-auditor` | Any diff touching auth, input parsing, queries, paths, or external I/O |
 
-```
-Stage 1: DISCOVER (Haiku)  → Find files, map structure      [Low cost]
-Stage 2: PLAN (Opus)       → Design implementation          [High value]
-Stage 3: WRITE (Sonnet)    → Generate code                  [Bulk output]
-Stage 4: VERIFY (Sonnet)   → Run tests, basic review        [Quality check]
-Stage 5: FIX (Opus)        → Fix issues (only if needed)    [Conditional]
-```
+## The verification bar
 
-### Cost Savings Example
+**Evidence before assertion.** These are the standing rules, and they are the ones most often
+skipped under time pressure:
 
-| Approach | 50K Output Tokens | Est. Cost |
-|----------|-------------------|-----------|
-| All Opus | 50K × $75/1M | ~$3.75 |
-| Staged (mostly Sonnet) | Mixed | ~$1.25 |
-| **Savings** | | **~67%** |
+1. **Never claim a gate passed that you did not run.** A gate with no command in this project is
+   reported NOT RUN, on its own row — never omitted, never implied green.
+2. **Never pipe a gate through `tail` or `head`.** Piping replaces the command's exit status with
+   the pipe's, so a crash or a timeout reads as a clean arrival. Read the exit code first.
+3. **An absence needs a positive control.** An empty grep, a zero count, a log with no line — each
+   is indistinguishable from an instrument that could not match, or never looked. Search for
+   something you know is present before reporting that something is not.
+4. **A count with no denominator reads as complete.** Report "8 of 19", and report skips as their
+   own bucket. Skips are never a random sample.
+5. **Separate what code says from what it does.** Reading establishes the former only. Anything
+   needing runtime goes under `Unverified` with the command that would settle it.
+6. **Cite symbols, not line numbers.** `auth.ts` → `validateSession()` survives the next edit.
 
-### When to Use Staged Execution
+## Autonomy
 
-**Use `/implement`** (staged) for:
-- Features requiring 3+ new files
-- Well-defined requirements
-- Standard patterns (CRUD, API endpoints)
-- Cost-conscious implementations
+Proceed without asking:
 
-**Use `/architect`** (Opus throughout) for:
-- Architectural exploration
-- Unclear requirements
-- Complex multi-system changes
-- Critical decisions
-
-### Stage Requirements
+- Reading files, searching, running read-only commands
+- Running tests, type checks, and linters
+- Fixing formatting, imports, and unused variables
+- Writing to `.claude/docs/` and the state files
 
-For staged execution to work well:
+Ask first:
 
-1. **Stage 2 (Plan)** must produce explicit instructions:
-   - Exact file paths
-   - Function signatures with types
-   - Step-by-step order
-   - Patterns to follow (with file references)
+- Deleting files, force-pushing, rewriting history
+- Changing a public interface other code depends on
+- Anything outward-facing: publishing, deploying, sending
+- Widening a permission or a security boundary
 
-2. **Stage 3 (Write)** follows plan exactly:
-   - No improvisation
-   - Use specified patterns
-   - Ask if plan unclear (rare)
+Stop and report rather than continuing:
 
-3. **Stage 5 (Fix)** is conditional:
-   - Only invoked if Stage 4 finds issues
-   - Minimal, targeted fixes
-   - Re-verify after fixes
+- The same root cause failed twice — a third blind attempt is guessing
+- The gates were red before you started and you cannot separate your breakage from theirs
+- A decision needs information you do not have; state the assumption or ask
 
----
+## Commits
 
-## State Management
-
-For long-running operations, use `.claude/state/`:
-
-| State File | Purpose | Tracks |
-|------------|---------|--------|
-| `refactor_state.md` | Multi-file refactoring | Batches, files, tests |
-| `migration_state.md` | Version migrations | Phases, rollback points |
-| `review_state.md` | Ongoing reviews | Findings, severity |
-| `implement_state.md` | Staged implementation | Stages, cost, progress |
-
-### Resume Protocol
-1. Check for existing state file
-2. Load last checkpoint
-3. Continue from interrupted position
-4. Update state after each step
-
----
-
-## Self-Assessment Pattern
-
-After completing major work, perform verification:
-
-```markdown
-## Self-Assessment Checklist
-
-### Completeness
-- [ ] All planned tasks marked complete
-- [ ] No TODO comments left unresolved
-- [ ] All files listed in plan were modified
-- [ ] Integration points wired correctly
-
-### Quality
-- [ ] Tests pass (run automatically)
-- [ ] No new lint warnings introduced
-- [ ] Error handling in place for edge cases
-- [ ] No hardcoded values that should be configurable
-
-### Verification
-- [ ] Changes work end-to-end (not just unit level)
-- [ ] Dependent systems still function
-- [ ] No regressions in existing functionality
-
-### Confidence
-Rate: [High/Medium/Low]
-Notes: <any concerns or areas needing human review>
-```
-
-**Trigger self-assessment after**:
-- Feature implementations
-- Multi-file refactors
-- Migrations
-- Any operation spanning 5+ files
-
----
-
-## Key Constraints
-
-### Safety
-- Never delete files without confirmation
-- Never use `rm -rf` or force operations
-- Never force push to main/master
-- Create backup branches for risky operations
-
-### Efficiency
-- Prefer editing existing files over creating new ones
-- Use haiku for speed, sonnet for quality, opus for complexity
-- Run tests automatically, don't ask
-- Batch operations for consistency
-
-### Quality
-- All changes must have tests
-- No new lint warnings
-- Follow existing patterns in codebase
-- Document non-obvious decisions
-
----
-
-## Hook System Configuration
-
-The project uses Claude Code hooks for automatic session tracking. Hooks are configured in `.claude/settings.local.json`.
-
-### Hook Types
-
-| Type | When It Runs | Purpose |
-|------|--------------|---------|
-| SessionStart | Session begins | Display welcome banner, initialize session |
-| PreCompact | Before context compaction | Preserve critical WIP context |
-| PostToolUse | After tool execution | Track changes automatically |
-
-### SessionStart Hooks
-
-```
-1. session-history.py  → Archives previous session, resets counters
-2. startup.sh          → Displays welcome banner
-```
-
-### PostToolUse Hooks
-
-For `Write|Edit` operations:
-```
-1. unified-post-write.py → Runs 3 operations in parallel (50-70% faster):
-   - Updates active_context.md with file modifications
-   - Syncs state file changes to state/_index.md
-   - Marks registry entries as stale when source files change
-```
-
-For `TodoWrite` operations:
-```
-1. todo-context-sync.py → Syncs todos to active_context.md
-```
-
-For `Skill` operations:
-```
-1. command-tracker.py  → Increments Commands Run counter
-```
-
-### Hook Scripts
-
-All hooks located in `.claude/hooks/`:
-
-| Script | Input | Output | Function |
-|--------|-------|--------|----------|
-| session-history.py | - | - | Archive previous session to history |
-| startup.sh | - | Banner to stderr | Welcome message with command list |
-| unified-post-write.py | Tool result JSON | - | **Unified hook**: Log file edits, sync state, mark stale (parallel) |
-| todo-context-sync.py | Tool result JSON | - | Sync todo items |
-| command-tracker.py | Tool result JSON | - | Increment Commands Run counter |
-| state_utils.py | - | - | Shared utilities for hooks |
-
-**Archived hooks** (replaced by unified-post-write.py):
-- session-tracker.py → `.claude/hooks/archive/`
-- state-sync.py → `.claude/hooks/archive/`
-- registry-staleness.py → `.claude/hooks/archive/`
-
-### Adding New Hooks
-
-To add a new PostToolUse hook:
-
-1. Create script in `.claude/hooks/`
-2. Add to settings.local.json under appropriate matcher
-3. Script receives JSON via stdin with tool_name and tool_input
-4. Script outputs JSON (can be empty `{}`)
-5. Use state_utils.py for common markdown operations
-
----
-
-## Cross-References
-
-- **Skills reference this**: All development skills
-- **Commands reference this**: All slash commands
-- **CLAUDE.md imports this**: Via @import
-- **Updated when**: Workflow patterns change
+- Stage **explicit paths**. Never `git add -A` or `git add .` — a broad add sweeps in whatever
+  else is in the tree, including another session's in-progress work.
+- One logical change per commit. A refactor and a behavior change in one diff is unreviewable.
+- No agent attribution footers. The author of record is the human.
